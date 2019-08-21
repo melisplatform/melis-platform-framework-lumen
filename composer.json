@@ -32,11 +32,15 @@
     },
     "require": {
         "php": ">=7.1.3",
-        "laravel/lumen-framework": "5.8.*",
-         "melisplatform/melis-platform-frameworks" : "dev-master"
+        "laravel/lumen-framework": "5.8.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8"
+    },
+    "scripts" : {
+        "post-update-cmd" : [
+            "composer create-project laravel/lumen ../../../thirdparty/Lumen"
+        ]
     },
     "autoload": {
         "psr-4": {
