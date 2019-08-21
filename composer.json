@@ -38,7 +38,7 @@
         "phpunit/phpunit": "~4.8"
     },
     "scripts" : {
-        "post-update-cmd" : [
+        "post-package-install" : [
             "composer create-project laravel/lumen ../../../thirdparty/Lumen"
         ]
     },
