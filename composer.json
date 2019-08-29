@@ -21,15 +21,8 @@
         "core",
         "melis",
         "zf2",
-        "module",
-        "lumen"
+        "module"
     ],
-    "extra": {
-        "module-name": "MelisPlatformFrameworkLumen",
-        "dbdeploy": false,
-        "melis-site": false,
-        "melis-module-category": "core"
-    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
@@ -38,9 +31,8 @@
         "optimize-autoloader": true
     },
     "require": {
-        "php": ">=7.1.3",
         "laravel/lumen-framework": "5.8.*",
-        "melisplatform/melis-platform-frameworks" : "dev-master"
+        "melisplatform/melis-core" : "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
@@ -50,17 +42,11 @@
     "autoload": {
         "psr-4": {
             "MelisPlatformFrameworkLumen\\": "src/",
-            "App\\": "../../../thirdparty/Lumen/app/"
+            "App\\": "thirdparty/Lumen/app/"
         },
         "classmap": [
-            "../../../thirdparty/Lumen/database/seeds/",
-            "../../../thirdparty/Lumen/database/factories/"
+            "thirdparty/Lumen/database/seeds/",
+            "thirdparty/Lumen/database/factories/"
         ]
-    },
-    "repositories" : [
-        {
-            "type" : "git",
-            "url"  : "https://github.com/melisplatform/melis-platform-frameworks"
-        }
-    ]
+    }
 }

@@ -21,6 +21,7 @@ class MelisServiceProvider
 
     public function __construct()
     {
+        // run zend mvc
         $this->zendMvc();
     }
 
@@ -38,7 +39,7 @@ class MelisServiceProvider
         return $this->getZendSerivceManager()->get($serviceName);
     }
     /**
-     * Register zend services
+     * set zend services
      */
     protected function zendMvc()
     {
@@ -47,9 +48,11 @@ class MelisServiceProvider
         if (!file_exists($zendAppConfig)) {
             throw new \Exception("Zend application config missing");
         }
+        $zendConfig = require $zendAppConfig;;
+        $zendConfig['modules'] = array_merge($zendConfig['modules'],$this->getMelisBoModuleLoad());
 
         // get the zend application
-        $zendApplication = Application::init(require $zendAppConfig);
+        $zendApplication = Application::init($zendConfig);
         // set zend service manager
         $this->setZendServiceManager($zendApplication->getServiceManager());
         // set zend event manager
@@ -63,11 +66,11 @@ class MelisServiceProvider
     protected function getMelisBoModuleLoad()
     {
         $boModuleLoad = $_SERVER['DOCUMENT_ROOT'] . "/../config/melis.module.load.php";
-        if (!file_exists($zendAppConfig)) {
+        if (!file_exists($boModuleLoad)) {
             throw new \Exception("Melis back office melis.module.load.php not found");
         }
 
-        return require_once $boModuleLoad;
+        return require $boModuleLoad;
     }
 
     /**
