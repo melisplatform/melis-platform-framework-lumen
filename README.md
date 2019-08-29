@@ -46,7 +46,7 @@ $resultArray          = $melisCoreLangTable->fetchAll()->toArray();
 
 Addtional info :
 
-1. In getting a melis service/table, just look for **module.config.php** in every melisplatform module. Look for **service_manager** key, you can use array keys either **aliases** or **factories**.
+1. In getting a melis service/table, just look for **module.config.php** in every melisplatform module. Look for **service_manager** key, you can use array keys under **aliases** or under **factories**.
 
     Example : MelisCoreTableLang
 
