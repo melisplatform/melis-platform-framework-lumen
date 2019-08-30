@@ -17,6 +17,9 @@
             "role": "Developer"
         }
     ],
+    "require" : {
+        "melisplatform/melis-core": "*"
+    },
     "keywords": [
         "core",
         "melis",
