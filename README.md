@@ -15,7 +15,70 @@ This module requires melisplatform/melis-core and laravel/lumen-framework in ord
 ```
 composer require melisplatform/melis-platform-framework-lumen
 ```
- 
+
+### Post Installing
+
+After installing the module , the Lumen framework must be installed in the /thirdparty directory.
+
+Execute this command inside /thirdparty directory to install **Lumen Framework**
+
+```
+  composer create-project laravel/lumen Lumen
+```
+
+After installing Lumen there are some files to edit. 
+
+1.  /thirdparty/Lumen/bootstrap/app.php
+
+    Point autoload.php to the root /vendor/autoload.php
+    ```
+       // from 
+       require_once __DIR__.'/../vendor/autoload.php'
+       
+       // to 
+       require_once __DIR__ .'/../../../vendor/autoload.php'
+    ```
+    
+2. /thirdparty/Lumen/bootstrap/app.php
+
+   Uncomment the following codes:
+   ```
+      $app->withFacades();
+      
+      $app->withEloquent();
+   ```
+   
+3. Delete the /vendor directory in /thirdparty/Lumen
+
+4. Add this line of codes in the root composer.json.
+
+    ```
+        "autoload": {
+            "classmap": [
+              "thirdparty/Lumen/database/seeds",
+              "thirdparty/Lumen/database/factories"
+            ],
+            "psr-4": {
+              "App\\": [
+                "thirdparty/Lumen/app/"
+              ]
+            }
+          },
+          "autoload-dev": {
+            "classmap": [
+              "thirdparty/Lumen/tests/"
+            ]
+          }
+    ```
+    
+   After adding the line codes, open the command line and execute this command :
+   
+   ```
+        composer dump-autoload
+   ```
+    
+
+
 ### Service Providers
 
 To use the service provider , just add the line below in the \bootstrap\app.php file in "Register Service Providers" area.
