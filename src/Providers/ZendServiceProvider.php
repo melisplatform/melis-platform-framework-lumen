@@ -34,6 +34,10 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendEventManager' , function(){
             return $this->zendEventManager;
         });
+        $this->app->singleton('translator' , function(){
+            return $this->zendServiceManager->get('translator');
+        });
+
     }
 
     /**
