@@ -8,7 +8,7 @@ These instructions will guide you to run the lumen microframework inside melis p
 
 ### Prerequisites
 
-This module requires melisplatform/melis-core and laravel/lumen-framework in order to have this module running. This will automatically be done when using composer.
+This module requires melisplatform/melis-core and laravel/lumen-framework in order to have this module running. It will automatically be done when using composer.
  
 ### Installing
 
@@ -18,7 +18,7 @@ composer require melisplatform/melis-platform-framework-lumen
 
 ### Service Providers
 
-To use the service provider , just add the line below in the \bootstrap\app.php file in "Register Service Providers" area.
+To use the service provider just add the line below in the \bootstrap\app.php file in the "Register Service Providers" area.
 ```
 $app->register(\MelisPlatformFrameworkLumen\Providers\ZendServiceProvider::class)
 ```
@@ -46,7 +46,7 @@ $resultArray          = $melisCoreLangTable->fetchAll()->toArray();
 
 Addtional info :
 
-1. In getting a melis service/table, just look for **module.config.php** in every melisplatform module. Look for **service_manager** key, you can use array keys under **aliases** or under **factories**.
+1. In getting a melis service/table, just look for **module.config.php** in every melisplatform module. Look for the **service_manager** key, you can use array keys under **aliases** or under **factories**.
 
     Example : MelisCoreTableLang
 
@@ -57,5 +57,15 @@ Addtional info :
     File location : *melis-core/src/Model/Tables/MelisLangTable.php* , in here you can see all the available functions.
 
 
+## Authors
+
+* **Melis Technology** - [www.melistechnology.com](https://www.melistechnology.com/)
+
+See also the list of [contributors](https://github.com/melisplatform/melis-core/contributors) who participated in this project.
+
+
+## License
+
+This project is licensed under the OSL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 
