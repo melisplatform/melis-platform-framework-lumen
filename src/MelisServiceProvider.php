@@ -2,6 +2,7 @@
 namespace MelisPlatformFrameworkLumen;
 
 
+use Symfony\Component\HttpFoundation\Request;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
@@ -30,20 +31,29 @@ class MelisServiceProvider
      * @return mixed
      * @throws \Exception
      */
-    public function getService($serviceName)
+    public static function getService($serviceName)
     {
-        if (! get_class($this->getZendSerivceManager()->get($serviceName))) {
+        $zendAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
+
+        if (!file_exists($zendAppConfig)) {
+            throw new \Exception("Zend application config missing");
+        }
+
+        // get the zend application
+        $zendApplication = Application::init(require $zendAppConfig);
+
+        if (! get_class($zendApplication->getServiceManager()->get($serviceName))) {
             throw new \Exception("Class `$serviceName`not found");
         }
 
-        return $this->getZendSerivceManager()->get($serviceName);
+
+        return $zendApplication->getServiceManager()->get($serviceName);
     }
     /**
      * set zend services
      */
     protected function zendMvc()
     {
-        // Avoid accessing from aritsan command
         $zendAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
         if (!file_exists($zendAppConfig)) {
             throw new \Exception("Zend application config missing");
@@ -155,4 +165,24 @@ class MelisServiceProvider
     {
         return $this->zendEventManager;
     }
+
+    /**
+     * @return \Laravel\Lumen\Application
+     */
+    protected function getLumenApp()
+    {
+        $lumenApp = include_once $_SERVER['DOCUMENT_ROOT'] . "/../thirdparty/Lumen/public/index.php";
+
+        return $lumenApp['app'];
+    }
+
+    /**
+     * @param Request|null $request
+     * @return false|string
+     */
+    public function getLumenContent(Request $request = null)
+    {
+        return $this->getLumenApp()->dispatch($request)->getContent();
+    }
+
 }
