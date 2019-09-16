@@ -25,7 +25,10 @@
     ],
     "autoload": {
         "psr-4": {
-            "MelisPlatformFrameworkLumen\\": "src/"
+            "MelisPlatformFrameworkLumen\\": "src/",
+            "App\\" : [
+                "thirdparty/Lumen/app"
+            ]
         }
     },
     "config": {
