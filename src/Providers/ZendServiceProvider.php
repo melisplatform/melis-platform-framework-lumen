@@ -7,6 +7,7 @@ use MelisPlatformFrameworkLumen\MelisServiceProvider;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
+use Zend\View\HelperPluginManager;
 
 class ZendServiceProvider extends ServiceProvider
 {
@@ -20,7 +21,10 @@ class ZendServiceProvider extends ServiceProvider
      * @var
      */
     protected $zendEventManager;
-
+    /**
+     * @var HelperPluginManager
+     */
+    protected $viewHelperManager;
     /**
      * register zend services
      */
@@ -51,8 +55,11 @@ class ZendServiceProvider extends ServiceProvider
         $this->zendServiceManager = $melisServices->getZendSerivceManager();
         // set event manager
         $this->zendEventManager   = $melisServices->getZendEventManager();
+        // set helper manager
+        $this->viewHelperManager  = $this->zendServiceManager->get('viewhelpermanager');
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
+        $this->syncZendMelisViewHelpers();
     }
 
     /**
@@ -69,4 +76,18 @@ class ZendServiceProvider extends ServiceProvider
         // update lumen db config
         Config::set('database.connections',$lumenDbConfig);
     }
+    public function syncZendMelisViewHelpers()
+    {
+        // get all registered view helper
+        $registerdViewHelpers = $this->viewHelperManager->getRegisteredServices();
+        $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
+        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
+        // register all
+        foreach ($zendMelisViewHelpers as $idx => $val) {
+            $this->app->singleton($val,function() use ($val) {
+                return $this->viewHelperManager->get($val);
+            });
+        }
+    }
+
 }

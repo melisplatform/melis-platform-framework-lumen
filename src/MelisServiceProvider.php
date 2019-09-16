@@ -6,12 +6,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
+use Zend\View\HelperPluginManager;
 
 class MelisServiceProvider
 {
+    private $config = [];
     /**
      * zend service manager
-     * @var
+     * @var ServiceManager
      */
     protected $zendServiceManager;
     /**
@@ -38,14 +40,8 @@ class MelisServiceProvider
         if (!file_exists($zendAppConfig)) {
             throw new \Exception("Zend application config missing");
         }
-
         // get the zend application
         $zendApplication = Application::init(require $zendAppConfig);
-
-        if (! get_class($zendApplication->getServiceManager()->get($serviceName))) {
-            throw new \Exception("Class `$serviceName`not found");
-        }
-
 
         return $zendApplication->getServiceManager()->get($serviceName);
     }
@@ -67,6 +63,14 @@ class MelisServiceProvider
         $this->setZendServiceManager($zendApplication->getServiceManager());
         // set zend event manager
         $this->setZendEventManager($zendApplication->getEventManager());
+//        /** @var HelperPluginManager $helperPlugin */
+//        $helperPlugin = $this->zendServiceManager->get('viewhelpermanager');
+//        $form = $helperPlugin->get('form');
+//        echo $form->openTag();
+//        echo $form->closeTag();
+//        print_r(get_class_methods($form));
+//        die;
+
     }
 
     /**
@@ -171,9 +175,10 @@ class MelisServiceProvider
      */
     protected function getLumenApp()
     {
-        $lumenApp = include_once $_SERVER['DOCUMENT_ROOT'] . "/../thirdparty/Lumen/public/index.php";
+        // get the lumen application
+        $lumenApp = include_once $_SERVER['DOCUMENT_ROOT'] . "/../thirdparty/Lumen/bootstrap/app.php";
 
-        return $lumenApp['app'];
+        return $lumenApp;
     }
 
     /**
@@ -183,6 +188,14 @@ class MelisServiceProvider
     public function getLumenContent(Request $request = null)
     {
         return $this->getLumenApp()->dispatch($request)->getContent();
+    }
+    public function addConfig(array $config)
+    {
+        $this->config = array_merge($this->config,$config);
+    }
+    public function getConfig()
+    {
+        return $this->config;
     }
 
 }
