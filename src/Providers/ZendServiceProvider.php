@@ -38,7 +38,7 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendEventManager' , function(){
             return $this->zendEventManager;
         });
-        $this->app->singleton('translator' , function(){
+        $this->app->singleton('ZendTranslator' , function(){
             return $this->zendServiceManager->get('translator');
         });
 
@@ -59,7 +59,7 @@ class ZendServiceProvider extends ServiceProvider
         $this->viewHelperManager  = $this->zendServiceManager->get('viewhelpermanager');
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
-        $this->syncZendMelisViewHelpers();
+    //    $this->syncZendMelisViewHelpers();
     }
 
     /**
@@ -82,11 +82,20 @@ class ZendServiceProvider extends ServiceProvider
         $registerdViewHelpers = $this->viewHelperManager->getRegisteredServices();
         $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
-        // register all
+        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+        // exclusion in order not to complicate with lumen defined classes
+        $excluded = [
+            'url',
+            "Url"
+        ];
+
+        // register all zend view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
-            $this->app->singleton($val,function() use ($val) {
-                return $this->viewHelperManager->get($val);
-            });
+            if(! in_array($val,$excluded)) {
+                $this->app->singleton($val,function() use ($val) {
+                    return $this->viewHelperManager->get($val);
+                });
+            }
         }
     }
 

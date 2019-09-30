@@ -63,13 +63,6 @@ class MelisServiceProvider
         $this->setZendServiceManager($zendApplication->getServiceManager());
         // set zend event manager
         $this->setZendEventManager($zendApplication->getEventManager());
-//        /** @var HelperPluginManager $helperPlugin */
-//        $helperPlugin = $this->zendServiceManager->get('viewhelpermanager');
-//        $form = $helperPlugin->get('form');
-//        echo $form->openTag();
-//        echo $form->closeTag();
-//        print_r(get_class_methods($form));
-//        die;
 
     }
 
