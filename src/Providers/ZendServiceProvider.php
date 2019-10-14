@@ -7,6 +7,7 @@ use MelisPlatformFrameworkLumen\MelisServiceProvider;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Session\Container;
 use Zend\View\HelperPluginManager;
 
 class ZendServiceProvider extends ServiceProvider
@@ -61,6 +62,7 @@ class ZendServiceProvider extends ServiceProvider
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
         // add melis helpers
         $this->syncZendMelisViewHelpers();
+
     }
 
     /**
@@ -103,7 +105,7 @@ class ZendServiceProvider extends ServiceProvider
         ];
 
 
-        // register all zend view helpers
+        // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
             if(in_array($val,$allowedHelpers)) {
                 $this->app->singleton($val,function() use ($val) {
@@ -112,5 +114,7 @@ class ZendServiceProvider extends ServiceProvider
             }
         }
     }
+
+
 
 }

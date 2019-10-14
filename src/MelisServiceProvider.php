@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Session\Container;
 use Zend\View\HelperPluginManager;
 
 class MelisServiceProvider
@@ -46,7 +47,18 @@ class MelisServiceProvider
         return $zendApplication->getServiceManager()->get($serviceName);
     }
     /**
-     * set zend services
+     * @return mixed
+     */
+    public static function getMelisLocale()
+    {
+        # get melis back office lang locale
+        $container = new Container('meliscore');
+
+        return $container['melis-lang-locale'];
+    }
+
+    /**
+     * @throws \Exception
      */
     protected function zendMvc()
     {
@@ -190,5 +202,6 @@ class MelisServiceProvider
     {
         return $this->config;
     }
+    
 
 }
