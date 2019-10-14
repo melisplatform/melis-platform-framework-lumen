@@ -42,7 +42,7 @@
         "mockery/mockery": "^1.0"
     },
     "require" : {
-        "melisplatform/melis-platform-frameworks": "*",
+        "melisplatform/melis-platform-frameworks": "^3.1",
         "laravel/lumen-framework": "5.8.*"
     }
 }
