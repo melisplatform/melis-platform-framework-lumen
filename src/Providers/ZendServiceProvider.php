@@ -86,7 +86,6 @@ class ZendServiceProvider extends ServiceProvider
         $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
-
         // selective view helper classes in order not to complicate with lumen pre-defined  classes
         $allowedHelpers = [
             'meliscoreicon',
@@ -103,8 +102,6 @@ class ZendServiceProvider extends ServiceProvider
             "sitetranslate",
             "siteconfig",
         ];
-
-
         // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
             if(in_array($val,$allowedHelpers)) {

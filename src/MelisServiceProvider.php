@@ -63,7 +63,7 @@ class MelisServiceProvider
      */
     protected function zendMvc()
     {
-        $zendAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
+        $zendAppConfig = __DIR__ . "/../../../../config/application.config.php";
         if (!file_exists($zendAppConfig)) {
             throw new \Exception("Zend application config missing");
         }
@@ -85,7 +85,7 @@ class MelisServiceProvider
      */
     protected function getMelisBoModuleLoad()
     {
-        $boModuleLoad = $_SERVER['DOCUMENT_ROOT'] . "/../config/melis.module.load.php";
+        $boModuleLoad = __DIR__ . "/../../../../config/melis.module.load.php";
         if (!file_exists($boModuleLoad)) {
             throw new \Exception("Melis back office melis.module.load.php not found");
         }
