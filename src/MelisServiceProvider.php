@@ -1,16 +1,17 @@
 <?php
 namespace MelisPlatformFrameworkLumen;
 
-
 use Symfony\Component\HttpFoundation\Request;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Session\Container;
-use Zend\View\HelperPluginManager;
 
 class MelisServiceProvider
 {
+    /**
+     * @var array
+     */
     private $config = [];
     /**
      * zend service manager

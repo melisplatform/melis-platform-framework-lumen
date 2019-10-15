@@ -37,9 +37,9 @@ class MelisPlatformFrameworkLumenService
 
     /**
      * Get the view of certain url
-     *
-     * @param $url
-     * @return false|string
+     * @param $config
+     * @return array|string
+     * @throws \Throwable
      */
     public function getViewContent($config)
     {
@@ -72,20 +72,23 @@ class MelisPlatformFrameworkLumenService
 
         return "<i>No content found</i>";
     }
+
     /**
+     *
      * This is the typical method used in displaying dynamic table in some melis modules.
      *
-     * This functions reads the configuration inside the config/talbe.fongi.php array config
+     * This functions reads the configuration inside the config/table.config.php array config
      *
      * This will generate a javascript code that will handle the pagination/limit/search of the table
      *
+     * @param $tableConfig
      * @param null $targetTable
      * @param bool $allowReInit
      * @param bool $selectCheckbox
      * @param array $tableOption
      * @param string $type
-     *
      * @return string
+     * @throws \Throwable
      */
     public function getDataTableConfiguration(
         $tableConfig,
