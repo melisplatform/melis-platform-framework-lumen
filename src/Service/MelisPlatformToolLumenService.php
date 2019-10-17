@@ -8,7 +8,7 @@ use Laravel\Lumen\Routing\Router;
 use MelisCore\Service\MelisCoreFlashMessengerService;
 use MelisPlatformFrameworkLumenDemoToolLogic\Model\MelisDemoAlbumTableLumen;
 
-class MelisPlatformFrameworkLumenService
+class MelisPlatformToolLumenService
 {
     /**
      * @param $title
@@ -45,7 +45,7 @@ class MelisPlatformFrameworkLumenService
     {
         $view = $config['view'] ?? null;
         if (empty($view)) {
-            return "No content found \t";
+            return "Not set \t";
         }
         return view($view)->render();
     }
