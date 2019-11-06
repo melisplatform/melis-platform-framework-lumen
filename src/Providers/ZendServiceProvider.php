@@ -1,6 +1,7 @@
 <?php
 namespace MelisPlatformFrameworkLumen\Providers;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use MelisPlatformFrameworkLumen\MelisServiceProvider;
@@ -62,6 +63,8 @@ class ZendServiceProvider extends ServiceProvider
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
         // add melis helpers
         $this->syncZendMelisViewHelpers();
+        // set application locale
+        $this->setLocale();
 
     }
 
@@ -101,6 +104,7 @@ class ZendServiceProvider extends ServiceProvider
             "melispagelanglink",
             "sitetranslate",
             "siteconfig",
+            "melisdatatable"
         ];
         // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
@@ -110,6 +114,16 @@ class ZendServiceProvider extends ServiceProvider
                 });
             }
         }
+    }
+
+    private function setLocale()
+    {
+        // get melis back office locale
+        $melisBoLocale = new Container('meliscore');
+        // loclae
+        $locale = explode('_',$melisBoLocale['melis-lang-locale'])[0];
+        // set locale
+        app('translator')->setLocale($locale);
     }
 
 
