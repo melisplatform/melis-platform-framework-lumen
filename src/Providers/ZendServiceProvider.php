@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use MelisPlatformFrameworkLumen\MelisServiceProvider;
+use MelisPlatformFrameworkLumen\Service\MelisPlatformToolLumenService;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
@@ -43,6 +44,7 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendTranslator' , function(){
             return $this->zendServiceManager->get('translator');
         });
+
 
     }
 

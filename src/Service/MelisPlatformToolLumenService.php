@@ -57,8 +57,81 @@ class MelisPlatformToolLumenService
 
         return null;
     }
+
+    /**
+     *
+     * create a dynamic form based from a config
+     * - also can set value to the inputs
+     *
+     * @param $formConfig
+     * @param array $data
+     * @return string
+     */
     public function createDynamicForm($formConfig,$data = [])
     {
+        $htmlForm = "";
+        $formAttributes = "";
+        $formElements = "";
+        if(!empty($formConfig)) {
+            if ($this->checkArraykey('form',$formConfig)) {
+                // check for form attributes
+                if ($this->checkArraykey('attributes',$formConfig['form'])) {
+                    foreach ($formConfig['form']['attributes'] as $idx => $val) {
+                        $formAttributes .= $idx . "='" . $val . "' ";
+                    }
+                }
+                // put form attributes
+                $htmlForm.= "<form " . $formAttributes .">";
+                // check form elements
+                if ($this->checkArraykey('elements',$formConfig['form'])) {
+                    foreach ($formConfig['form']['elements'] as $idx => $elements) {
+                        // through this key the element show only when no data passed
+                        if(!isset($elements['hideNoData'])) {
+                            $formElements .= $this->createElement($elements, $data);
+                        } else {
+                            if (! empty($data)) {
+                                $formElements .= $this->createElement($elements,$data);
+                            }
+                        }
+
+                    }
+                }
+                // construct form
+                $htmlForm .= $formElements . "</form>";
+            }
+        }
+
+        return $htmlForm;
+    }
+
+    /**
+     * validate key in an array
+     *
+     * @param $key
+     * @param $array
+     * @return bool
+     */
+    private function checkArraykey($key,$array)
+    {
+        if (isset($array[$key]) && $array[$key]) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * creating a form ELEMENT based from a config
+     *
+     *
+     * @param $elements
+     * @param array $data
+     * @return string
+     */
+    protected function createElement($elements, $data = [])
+    {
+        // input types
         $formInputsType = [
             'text',
             'radio',
@@ -67,62 +140,51 @@ class MelisPlatformToolLumenService
             'checkbox',
             'file',
         ];
-        $htmlForm = "";
-        if(!empty($formConfig)) {
-            if ($this->checkArraykey('form',$formConfig)) {
-                // check for form attributes
-                $formAttributes = "";
-                if ($this->checkArraykey('attributes',$formConfig['form'])) {
-                    foreach ($formConfig['form']['attributes'] as $idx => $val) {
-                        $formAttributes .= $idx . "='" . $val . "' ";
-                    }
+        // declrations
+        $elementAttrb = "";
+        $toolTip = "";
+        $label = "";
+        $element = "";
+        // check element type
+        if ($this->checkArraykey('type',$elements) ) {
+            // cehck for element attributes
+            if ($this->checkArraykey('attributes',$elements)) {
+                foreach ($elements['attributes'] as $idx => $val) {
+                    $elementAttrb .= $idx . "=" . $val . " ";
                 }
-                // put attributes
-                $htmlForm.= "<form " . $formAttributes .">";
-                $formElements = "";
-                // check for form elements
-                if ($this->checkArraykey('elements',$formConfig['form'])) {
-                    foreach ($formConfig['form']['elements'] as $idx => $elements) {
-                        // check element type
-                        if ($this->checkArraykey('type',$elements)) {
-                            $elementAttrb = "";
-                            // cehck for element attributes
-                            if ($this->checkArraykey('attributes',$elements)) {
-                                foreach ($elements['attributes'] as $idx => $val) {
-                                    $elementAttrb .= $idx . "=" . $val . " ";
-                                }
-                            }
-                            if ($this->checkArraykey('tooltip',$elements))
-                                $toolTip = '<i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
+            }
+            // tooltip
+            if ($this->checkArraykey('tooltip',$elements)) {
+                $toolTip = '<i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
+            }
 
-                            if ($this->checkArraykey('label',$elements))
-                                $label = "<label>" . ($elements['label'] ?? null) . " " . $toolTip ."</label>";
-
-                            // for inputs
-                            if (in_array($elements['type'] ?? null, $formInputsType)) {
-                                if ($this->checkArraykey('type',$elements))
-                                    $input = "<input type='" .  $elements['type'] . "' " . $elementAttrb . "/>";
-                            }
-
-                            $formElements .= "<div class='form-group'>" . $label . " " . $input ."</div>";
+            //label
+            if ($this->checkArraykey('label',$elements)) {
+                $label = "<label>" . ($elements['label'] ?? null) . " " . $toolTip ."</label>";
+            }
+            // for inputs
+            $value = isset($data[$elements['attributes']['name']]) ? "value=". $data[$elements['attributes']['name']] : null;
+            if ($this->checkArraykey('type',$elements)) {
+                if (in_array($elements['type'] ?? null, $formInputsType)) {
+                    // construct form inputs
+                    $element = "<input type='" .  $elements['type'] . "' " . $elementAttrb . "" .  $value .  " />";
+                } else if ($elements['type'] == 'textarea') {
+                    // construct textarea
+                    $element = "<textarea  style='resize: vertical;' " . $elementAttrb . "> " . $value . " </textarea>";
+                } else if ($elements['type'] == 'select') {
+                    if ($this->checkArraykey('options',$elements)) {
+                        $options = "";
+                        foreach($elements['options'] as $idx => $val){
+                            $options.= "<option value='" . $idx ."'>" . $val . "</option>";
                         }
                     }
+                    $element = "<select " . $elementAttrb .">" . $options ."</select>";
                 }
-
-                $htmlForm .= $formElements . "</form>";
             }
+
         }
-
-        return $htmlForm;
-    }
-
-    private function checkArraykey($key,$array)
-    {
-        if (isset($array[$key]) && $array[$key]) {
-            return true;
-        }
-
-        return false;
+        // set form elements
+        return "<div class='form-group'>" . $label . " " . $element ."</div>";
     }
 
 }
