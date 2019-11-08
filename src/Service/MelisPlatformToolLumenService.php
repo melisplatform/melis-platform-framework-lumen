@@ -157,10 +157,14 @@ class MelisPlatformToolLumenService
             if ($this->checkArraykey('tooltip',$elements)) {
                 $toolTip = '<i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
             }
-
+            // check required attribute
+            $required = null;
+            if (isset($elements['attributes']['required']) && $elements['attributes']['required']) {
+                $required = "*";
+            }
             //label
             if ($this->checkArraykey('label',$elements)) {
-                $label = "<label>" . ($elements['label'] ?? null) . " " . $toolTip ."</label>";
+                $label = "<label>" . ($elements['label'] ?? null) . " " . $required  . " " . $toolTip ."</label>";
             }
             // for inputs
             $value = isset($data[$elements['attributes']['name']]) ? "value=". $data[$elements['attributes']['name']] : null;
