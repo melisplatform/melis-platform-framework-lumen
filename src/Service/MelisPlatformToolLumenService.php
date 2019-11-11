@@ -150,7 +150,7 @@ class MelisPlatformToolLumenService
             // cehck for element attributes
             if ($this->checkArraykey('attributes',$elements)) {
                 foreach ($elements['attributes'] as $idx => $val) {
-                    $elementAttrb .= $idx . "=" . $val . " ";
+                    $elementAttrb .= $idx . "='" . $val . "' ";
                 }
             }
             // tooltip
