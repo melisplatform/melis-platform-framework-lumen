@@ -8,9 +8,12 @@ use Laravel\Lumen\Routing\Router;
 use MelisCore\Service\MelisCoreFlashMessengerService;
 use MelisPlatformFrameworkLumenDemoToolLogic\Model\MelisDemoAlbumTableLumen;
 
-class MelisPlatformToolLumenService
+class MelisPlatformToolService
 {
     /**
+     *
+     * save for melis flash messenger
+     *
      * @param $title
      * @param $message
      * @param string $icon
@@ -23,6 +26,8 @@ class MelisPlatformToolLumenService
     }
 
     /**
+     * save logs form melis-core logs
+     *
      * @param $title
      * @param $message
      * @param $success
@@ -87,6 +92,7 @@ class MelisPlatformToolLumenService
                     foreach ($formConfig['form']['elements'] as $idx => $elements) {
                         // through this key the element show only when no data passed
                         if(!isset($elements['hideNoData'])) {
+                            // create form element
                             $formElements .= $this->createElement($elements, $data);
                         } else {
                             if (! empty($data)) {
