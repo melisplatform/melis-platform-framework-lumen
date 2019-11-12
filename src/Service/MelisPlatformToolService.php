@@ -173,7 +173,7 @@ class MelisPlatformToolService
                 $label = "<label>" . ($elements['label'] ?? null) . " " . $required  . " " . $toolTip ."</label>";
             }
             // for inputs
-            $value = isset($data[$elements['attributes']['name']]) ? "value=". $data[$elements['attributes']['name']] : null;
+            $value = isset($data[$elements['attributes']['name']]) ? "value='". $data[$elements['attributes']['name']] ."'" : null;
             if ($this->checkArraykey('type',$elements)) {
                 if (in_array($elements['type'] ?? null, $formInputsType)) {
                     // construct form inputs
