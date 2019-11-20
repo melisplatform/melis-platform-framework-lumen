@@ -1,12 +1,15 @@
 <?php
 namespace MelisPlatformFrameworkLumen\Providers;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use MelisPlatformFrameworkLumen\MelisServiceProvider;
+use MelisPlatformFrameworkLumen\Service\MelisPlatformToolLumenService;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Session\Container;
 use Zend\View\HelperPluginManager;
 
 class ZendServiceProvider extends ServiceProvider
@@ -38,9 +41,10 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendEventManager' , function(){
             return $this->zendEventManager;
         });
-        $this->app->singleton('translator' , function(){
+        $this->app->singleton('ZendTranslator' , function(){
             return $this->zendServiceManager->get('translator');
         });
+
 
     }
 
@@ -59,7 +63,11 @@ class ZendServiceProvider extends ServiceProvider
         $this->viewHelperManager  = $this->zendServiceManager->get('viewhelpermanager');
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
+        // add melis helpers
         $this->syncZendMelisViewHelpers();
+        // set application locale
+        $this->setLocale();
+
     }
 
     /**
@@ -82,12 +90,44 @@ class ZendServiceProvider extends ServiceProvider
         $registerdViewHelpers = $this->viewHelperManager->getRegisteredServices();
         $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
-        // register all
+        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+        // selective view helper classes in order not to complicate with lumen pre-defined  classes
+        $allowedHelpers = [
+            'meliscoreicon',
+            "meliscmsicon",
+            "melismarketingicon",
+            "meliscommerceicon",
+            "melisothersicon",
+            "meliscustomicon",
+            "melisgenerictable",
+            "melistag",
+            "melislink",
+            "melishomepagelink",
+            "melispagelanglink",
+            "sitetranslate",
+            "siteconfig",
+            "melisdatatable"
+        ];
+        // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
-            $this->app->singleton($val,function() use ($val) {
-                return $this->viewHelperManager->get($val);
-            });
+            if(in_array($val,$allowedHelpers)) {
+                $this->app->singleton($val,function() use ($val) {
+                    return $this->viewHelperManager->get($val);
+                });
+            }
         }
     }
+
+    private function setLocale()
+    {
+        // get melis back office locale
+        $melisBoLocale = new Container('meliscore');
+        // loclae
+        $locale = explode('_',$melisBoLocale['melis-lang-locale'])[0];
+        // set locale
+        app('translator')->setLocale($locale);
+    }
+
+
 
 }
