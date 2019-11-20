@@ -1,15 +1,17 @@
 <?php
 namespace MelisPlatformFrameworkLumen;
 
-
 use Symfony\Component\HttpFoundation\Request;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
-use Zend\View\HelperPluginManager;
+use Zend\Session\Container;
 
 class MelisServiceProvider
 {
+    /**
+     * @var array
+     */
     private $config = [];
     /**
      * zend service manager
@@ -46,11 +48,22 @@ class MelisServiceProvider
         return $zendApplication->getServiceManager()->get($serviceName);
     }
     /**
-     * set zend services
+     * @return mixed
+     */
+    public static function getMelisLocale()
+    {
+        # get melis back office lang locale
+        $container = new Container('meliscore');
+
+        return $container['melis-lang-locale'];
+    }
+
+    /**
+     * @throws \Exception
      */
     protected function zendMvc()
     {
-        $zendAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
+        $zendAppConfig = __DIR__ . "/../../../../config/application.config.php";
         if (!file_exists($zendAppConfig)) {
             throw new \Exception("Zend application config missing");
         }
@@ -63,13 +76,6 @@ class MelisServiceProvider
         $this->setZendServiceManager($zendApplication->getServiceManager());
         // set zend event manager
         $this->setZendEventManager($zendApplication->getEventManager());
-//        /** @var HelperPluginManager $helperPlugin */
-//        $helperPlugin = $this->zendServiceManager->get('viewhelpermanager');
-//        $form = $helperPlugin->get('form');
-//        echo $form->openTag();
-//        echo $form->closeTag();
-//        print_r(get_class_methods($form));
-//        die;
 
     }
 
@@ -79,7 +85,7 @@ class MelisServiceProvider
      */
     protected function getMelisBoModuleLoad()
     {
-        $boModuleLoad = $_SERVER['DOCUMENT_ROOT'] . "/../config/melis.module.load.php";
+        $boModuleLoad = __DIR__ . "/../../../../config/melis.module.load.php";
         if (!file_exists($boModuleLoad)) {
             throw new \Exception("Melis back office melis.module.load.php not found");
         }
@@ -197,5 +203,6 @@ class MelisServiceProvider
     {
         return $this->config;
     }
+    
 
 }
