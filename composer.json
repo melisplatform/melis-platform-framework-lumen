@@ -28,7 +28,8 @@
             "MelisPlatformFrameworkLumen\\": "src/",
             "App\\" : [
                 "thirdparty/Lumen/app"
-            ]
+            ],
+            "LumenModule\\": "thirdparty/Lumen/module/"
         }
     },
     "config": {
