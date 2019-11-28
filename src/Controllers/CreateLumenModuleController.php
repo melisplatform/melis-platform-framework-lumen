@@ -28,5 +28,11 @@ class CreateLumenModuleController extends Controller
         }
 
         $this->moduleService->createModule($moduleName);
+
+        return [
+            'success' => true,
+            'module' => $moduleName,
+            'message' => 'Module ' . $moduleName . " is successfully created !"
+        ];
     }
 }

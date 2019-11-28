@@ -44,6 +44,9 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendTranslator' , function(){
             return $this->zendServiceManager->get('translator');
         });
+        $this->app->singleton('MelisToolCreatorSession' , function(){
+            return new Container('melistoolcreator');
+        });
 
 
     }
