@@ -37,6 +37,10 @@ class MelisLumenModuleService
     /**
      * @var string
      */
+    const TEMPLATE_SERVICE = __DIR__ . "/../../install/moduleTemplate/src/Service/TemplateService.php";
+    /**
+     * @var string
+     */
     const TEMPLATE_CONFIG_FILE = [
         'table' => __DIR__ . "/../../install/moduleTemplate/config/tmp.table.config.php"
     ];
@@ -78,14 +82,31 @@ class MelisLumenModuleService
      */
     private $modelName;
 
+    /**
+     * @var string
+     */
+    private $tablePrimaryKey;
+    /**
+     * MelisLumenModuleService constructor.
+     */
     public function __construct()
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
         // set model name
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
+        // set table primary key
+        $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
     }
 
+    public function getTablePrimaryKey()
+    {
+        return $this->tablePrimaryKey;
+    }
+    public function setTablePrimaryKey($primaryKey)
+    {
+        $this->tablePrimaryKey = $primaryKey;
+    }
     /**
      * return service providers file path
      * @return string
@@ -226,6 +247,8 @@ class MelisLumenModuleService
         $this->createViewFiles();
         // process model
         $this->createModelFile();
+        // proccess service
+        $this->createServiceFile();
         // add to lumen service.provders.php
         $this->add($providerName);
 
@@ -395,8 +418,6 @@ class MelisLumenModuleService
         if (!file_exists($pathToCreate)) {
             mkdir($pathToCreate,077);
         }
-        // get the primary key of the table
-        $primarykey = DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name;
         // get the template controller
         $tmpModel = file_get_contents(self::TEMPLATE_MODEL);
         // construct model name
@@ -404,7 +425,7 @@ class MelisLumenModuleService
         // replace mode_name
         $tmpModel = str_replace('[model_name]',$modelName,$tmpModel);
         // set primary key
-        $tmpModel = str_replace('[primary_key]',$primarykey,$tmpModel);
+        $tmpModel = str_replace('[primary_key]',$this->getTablePrimaryKey(),$tmpModel);
         // replace table_name
         $tmpModel = str_replace('[table_name]',$this->getTableName(),$tmpModel);
         // replace module_name in file
@@ -412,6 +433,28 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $modelName . ".php",$data);
 
+    }
+    public function createServiceFile()
+    {
+        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Service";
+        // create directory
+        if (!file_exists($pathToCreate)) {
+            mkdir($pathToCreate,077);
+        }
+        // get the template controller
+        $tmpModel = file_get_contents(self::TEMPLATE_SERVICE);
+        // replace mode_name
+        $tmpModel = str_replace('[model_name]',$this->getModelName(), $tmpModel);
+        // set primary key
+        $tmpModel = str_replace('[primary_key]',$this->getTablePrimaryKey(), $tmpModel);
+        // set service template name
+        $tmpModel = str_replace('[template_service_name]',$this->getModuleName() . "Service", $tmpModel);
+        // replace table_name
+        $tmpModel = str_replace('[table_name]',$this->getTableName(), $tmpModel);
+        // replace module_name in file
+        $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpModel);
+        // create a file
+        $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $this->getModuleName() . "Service.php",$data);
     }
     private static function p($text)
     {
@@ -499,6 +542,8 @@ class MelisLumenModuleService
             }
         }
         $translations = array_merge_recursive($translations,$tmpTrans);
+        // include melis common translations
+        $translations = array_merge_recursive($translations,$this->getMelisCommonTranslations());
 
         return $translations;
     }
@@ -533,7 +578,7 @@ class MelisLumenModuleService
         $partialContent = null;
         $columnsWidth = round(90/count($columns));
         foreach ($columns as $i => $val) {
-            $partialContent .= "\t\t\t'$val'" . " => [\n \t\t\t\t' text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";
+            $partialContent .= "\t\t\t'$val'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";
         }
 
         return "[\n  " . $partialContent ." \t\t],";
@@ -554,6 +599,34 @@ class MelisLumenModuleService
        return $this->getToolCreatorSession()['step3']['tcf-db-table'];
     }
 
+    public function getMelisCommonTranslations()
+    {
+        $commonTranslations = [];
+        $commonTranslations['en_EN'] = [
+            'tr_' . strtolower($this->getModuleName()) . '_common_add' => 'Add',
+            'tr_' . strtolower($this->getModuleName()) . '_common_edit' => 'Edit',
+            'tr_' . strtolower($this->getModuleName()) . '_common_delete' => 'Delete',
+            'tr_' . strtolower($this->getModuleName()) . '_common_save' => 'Save',
+            'tr_' . strtolower($this->getModuleName()) . '_common_close' => 'Close',
+            'tr_' . strtolower($this->getModuleName()) . '_common_refresh' => 'Refresh',
+        ];
+        $commonTranslations['fr_FR'] = [
+            'tr_' . strtolower($this->getModuleName()) . '_common_add' => 'Ajouter',
+            'tr_' . strtolower($this->getModuleName()) . '_common_edit' => 'Editer',
+            'tr_' . strtolower($this->getModuleName()) . '_common_delete' => 'Supprimer',
+            'tr_' . strtolower($this->getModuleName()) . '_common_save' => 'Sauvegarder',
+            'tr_' . strtolower($this->getModuleName()) . '_common_close' => 'Annuler',
+            'tr_' . strtolower($this->getModuleName()) . '_common_refresh' => 'Rafraichir',
+        ];
+        // for other languages that are not yet created
+        foreach ($this->getMelisLanguages() as $idx => $val) {
+            if (!in_array($val,['en_EN','fr_FR'])) {
+                $commonTranslations[$val] = $commonTranslations['en_EN'];
+            }
+        }
+        return $commonTranslations;
+
+    }
 
 
 }

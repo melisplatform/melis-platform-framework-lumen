@@ -1,13 +1,16 @@
+<[?]php
+    $smToolname = strtolower('[module_name]');
+[?]>
 <div class="me-heading bg-white border-bottom">
     <div class="row">
         <div class="me-hl col-xs-12 col-md-9">
-            <h1 class="content-heading">{{ __('lumenDemo::translations.tr_melis_lumen_main_heading') }}</h1>
-            <p>{{ __('lumenDemo::translations.tr_melis_lumen_main_sub_heading') }} </p>
+            <h1 class="content-heading">{{ __('[module_name]::messages.tr_' . $smToolname . '_title') }}</h1>
+            <p>{{ __('[module_name]::messages.tr_' . $smToolname . '_desc') }} </p>
         </div>
         <div class="me-hl col-xs-12 col-md-3" align="right">
-            <a data-meliskey="lumen_album_list_header_right_add" data-toggle="modal" data-target="#lumenModal"  class="btn btn-success add-lumen-album" title="Add album">
+            <a  data-toggle="modal" data-target="#{{ $smToolname  }}Modal"  class="btn btn-success add-{{ $smToolname }}" title="{{ __('[module_name]::messages.tr_' . $smToolname . '_common_add') }}">
                 <i class="fa fa-plus"></i>
-                {{ __('lumenDemo::translations.tr_melis_lumen_add_button_text') }}
+                {{ __('[module_name]::messages.tr_' . $smToolname . '_common_add') }}
             </a>
         </div>
     </div>

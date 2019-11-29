@@ -13,7 +13,7 @@ use LumenModule\[module_name]\Http\Controllers\IndexController;
 
 Route::get('/melis/[module_name]-tool',  IndexController::class ."@renderIndex");
 // get datatable data
-Route::get('/melis/[module_name]/get-table-data', IndexController::class ."@getTableData");
+Route::post('/melis/[module_name]/get-table-data', IndexController::class ."@getTableData");
 
 
 
