@@ -59,6 +59,7 @@ class ZendServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . "/../../routes/web.php");
         // run zendMvc
         $melisServices = new MelisServiceProvider();
+
         // set service manager
         $this->zendServiceManager = $melisServices->getZendSerivceManager();
         // set event manager

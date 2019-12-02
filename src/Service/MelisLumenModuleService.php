@@ -55,6 +55,19 @@ class MelisLumenModuleService
         'header' => [
             'html' => __DIR__ . "/../../install/moduleTemplate/views/tool/header.blade.php"
         ],
+        'tmp-modal' => [
+            'html' => __DIR__ . "/../../install/moduleTemplate/views/tool/temp-modal.blade.php"
+        ],
+        'modal-content' => [
+            'phpTag' => true,
+            'html' => __DIR__ . "/../../install/moduleTemplate/views/tool/modal-content.blade.php"
+        ],
+    ];
+    const ASSETS = [
+        'js' => [
+            'fileName' => 'tool.js',
+            'file' => __DIR__ . "/../../install/moduleTemplate/assets/js/tool-script-template.js"
+        ]
     ];
     /**
      * @var string
@@ -93,6 +106,7 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
+//        $this->toolCreatorSession = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/../tcsession"));
         // set model name
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
         // set table primary key
@@ -225,32 +239,28 @@ class MelisLumenModuleService
     {
         // set module name
         $this->setModuleName($moduleName);
-        // create config files
-        $this->createConfigFiles();
         // create module directory
-        $moduleDir = $this->createModuleDir();
-        // set module dir
-        $this->setModuleDir($moduleDir);
+        $this->createModuleDir();
         // construct other folders
         $this->constructFolderStructure();
         // process routes
         $this->createRouteFile();
         // process service provider
-        $providerName = $this->createServiceProviderFile();
+        $this->createServiceProviderFile();
         // process controller
         $this->createControllerFile();
         // process locale translations
         $this->createTranslationFiles();
         // process configs
         $this->createConfigFiles();
+        // process assets
+        $this->createAssetsFile();
         // process view files
         $this->createViewFiles();
         // process model
         $this->createModelFile();
         // proccess service
         $this->createServiceFile();
-        // add to lumen service.provders.php
-        $this->add($providerName);
 
         return [
             "message" => 'Module ' . $moduleName . " created successfully"
@@ -271,8 +281,8 @@ class MelisLumenModuleService
             // create folder
             mkdir($moduleDir,0777);
         }
-
-        return $moduleDir;
+        // set module dir
+        $this->setModuleDir($moduleDir);
     }
 
     /**
@@ -289,7 +299,7 @@ class MelisLumenModuleService
             'http',
             'providers',
             'views',
-          //  'models'
+            'assets'
         ];
         // create folders
         foreach ($foldersToCreate as $i => $val) {
@@ -321,7 +331,9 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR . $this->getModuleName() ."Provider.php",$data);
 
-        return self::MODULE_NAMESPACE . "\\" . $this->getModuleName() . "\\Providers\\" . $this->getModuleName() . "Provider";
+        $providerName = self::MODULE_NAMESPACE . "\\" . $this->getModuleName() . "\\Providers\\" . $this->getModuleName() . "Provider";
+        // add to lumen service.provders.php
+        $this->add($providerName);
 
     }
     private function createControllerFile()
@@ -373,7 +385,7 @@ class MelisLumenModuleService
             // replace module_name in file
             $tmpData =  "";
             foreach ($translations[$locale] as $key => $val) {
-                $tmpData .= "\t'".$key . "' => '" . $val . "',\n";
+                $tmpData .= "\t\"".$key . "\" => \"" . $val . "\",\n";
             }
             $data = $phpTag . "\n return [\n" . $tmpData . " ];";
             // create a file
@@ -456,6 +468,25 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $this->getModuleName() . "Service.php",$data);
     }
+
+    private function createAssetsFile()
+    {
+        foreach (self::ASSETS as $idx => $file) {
+            $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "assets" . DIRECTORY_SEPARATOR . $idx;
+            // create directory
+            if (!file_exists($pathToCreate)) {
+                mkdir($pathToCreate,077);
+            }
+            // get the template controller
+            $tmpFile = file_get_contents($file['file']);
+            // replace module_name in file
+            $data = str_replace('[module_name]',strtolower($this->getModuleName()),$tmpFile);
+            $data = str_replace('[form_name]',"test",$data);
+            // create a file
+            $this->createFile($pathToCreate  . DIRECTORY_SEPARATOR . $file['fileName'],$data);
+        }
+    }
+
     private static function p($text)
     {
         echo "<pre>";

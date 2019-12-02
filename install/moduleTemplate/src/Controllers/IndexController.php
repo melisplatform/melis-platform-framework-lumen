@@ -78,4 +78,21 @@ class IndexController extends BaseController
             'data' => $tableData
         ];
     }
+    /**
+    * @return \Illuminate\View\View
+    */
+    public function toolModalContent()
+    {
+        $id = app('request')->request->get('id') ?? null;
+        $data = [];
+        //if ($albumId) {
+          //  $data = $this->toolService->getAlbumById($albumId)->toArray();
+    //    }
+
+        return view("$this->viewNamespace::tool/modal-content",[
+           // 'form' => $this->melisPlatformToolService->createDynamicForm(Config::get('album_form'),$data),
+             'id' => $id
+        ]);
+
+    }
 }

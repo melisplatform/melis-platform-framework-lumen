@@ -7,7 +7,7 @@ return array(
         'dataFunction' => '',
         'ajaxCallback' => '',
         'attributes' => [
-            'id' => '[module_name]ToolTable',
+            'id' => $smModuleName . 'ToolTable',
             'class' => 'table table-stripes table-primary dt-responsive nowrap',
             'cellspacing' => '0',
             'width' => '100%',
