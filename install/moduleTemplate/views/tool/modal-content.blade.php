@@ -15,7 +15,7 @@ if ($id) {
     <div class="tab-content">
         <div class="tab-pane active">
             <div class="main-content">
-               asdasdasdas
+               <?= $form?>
                 <br>
                 <div align="right">
                     <button data-dismiss="modal" class="btn btn-danger pull-left lumen-modal-close" ><i class="fa fa-times"></i> <?= __('lumenDemo::translations.tr_common_close')?></button>

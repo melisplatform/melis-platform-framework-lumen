@@ -42,7 +42,8 @@ class MelisLumenModuleService
      * @var string
      */
     const TEMPLATE_CONFIG_FILE = [
-        'table' => __DIR__ . "/../../install/moduleTemplate/config/tmp.table.config.php"
+        'table' => __DIR__ . "/../../install/moduleTemplate/config/tmp.table.config.php",
+        'form' => __DIR__ . "/../../install/moduleTemplate/config/tmp.form.config.php",
     ];
     /**
      * @var string
@@ -412,12 +413,14 @@ class MelisLumenModuleService
         }
         $columns = $this->getTableColumns();
         $searchables = $this->getSearchableColumns();
+        $formFields = $this->getFormFields();
         // get the template configs
         foreach (self::TEMPLATE_CONFIG_FILE as $fileName => $val) {
             $tmpConfig = file_get_contents($val);
             // replace module_name in file
             $partialContent = str_replace('[tool_columns]',$columns,$tmpConfig);
             $partialContent = str_replace('[tool_searchables]',$searchables,$partialContent);
+            $partialContent = str_replace('[elements]',$formFields ,$partialContent);
             $data =  "<?php \n" . str_replace('[module_name]', $this->getModuleName(),$partialContent);
             // create a file
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $fileName. ".config.php",$data);
@@ -624,6 +627,39 @@ class MelisLumenModuleService
         }
 
         return  "[" . $partialContent . "],";
+    }
+    public function getFormFields()
+    {
+        $string = "";
+        foreach ($this->reOderFormFields() as $field => $options) {
+            $string .= "[\n\t\t\t 'label' => " . $options['label'] . ",\n\t\t\t 'tooltip' => " . $options['tooltip'] . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . $options['class'] . "',\n\t\t\t\t 'required' => '" . $options['required'] . "'\n\t\t\t] \n\t\t],";
+        }
+
+        return $string;
+    }
+    private function reOderFormFields()
+    {
+        $formFields = [];
+        $editableCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-editable'];
+        $requiredCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-required'];
+        // editable columns
+        foreach ($editableCols as $idx => $field) {
+            $formFields[$field] = [
+                'editable' => true
+            ];
+        }
+        // required columns
+        foreach ($requiredCols as $idx => $field) {
+            $formFields[$field] = array_merge_recursive($formFields[$field],[
+                'required' => true,
+                'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
+                'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
+                'class'    => 'form-control',
+                'type'     => 'text'
+            ]);
+        }
+
+        return $formFields;
     }
     public function getTableName()
     {

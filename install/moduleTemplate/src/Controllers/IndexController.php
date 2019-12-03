@@ -1,6 +1,8 @@
 namespace LumenModule\[module_name]\Http\Controllers;
 
+use Illuminate\Support\Facades\Config;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use MelisPlatformFrameworkLumen\Service\MelisPlatformToolService;
 use LumenModule\[module_name]\Http\Service\[module_name]Service;
 use Illuminate\Http\Request;
 
@@ -14,9 +16,12 @@ class IndexController extends BaseController
 
     private $toolService;
 
-    public function __construct([module_name]Service $toolService)
+    private $melisToolService;
+
+    public function __construct([module_name]Service $toolService,MelisPlatformToolService $melisToolService)
     {
         $this->toolService = $toolService;
+        $this->melisToolService = $melisToolService;
     }
     public function renderIndex()
     {
@@ -90,7 +95,7 @@ class IndexController extends BaseController
     //    }
 
         return view("$this->viewNamespace::tool/modal-content",[
-           // 'form' => $this->melisPlatformToolService->createDynamicForm(Config::get('album_form'),$data),
+            'form' => $this->melisToolService->createDynamicForm(Config::get('[module_name]')['form_config'],$data),
              'id' => $id
         ]);
 

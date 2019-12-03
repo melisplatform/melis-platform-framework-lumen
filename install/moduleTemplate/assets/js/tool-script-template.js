@@ -1,5 +1,4 @@
-
-var [module_name]Tool = {
+window.[module_name]Tool = {
     tableConfig : null,
     tempLoader    : "<div id=\"loader\" class=\"overlay-loader\"><img class=\"loader-icon spinning-cog\" src=\"/MelisCore/assets/images/cog12.svg\" data-cog=\"cog12\"></div>",
     currentRequest : null,
@@ -99,10 +98,10 @@ var [module_name]Tool = {
     },
 
 };
-if (typeof [module_name]Tool != "object") {
+//if (typeof [module_name]Tool == undefined) {
     (function ($){
         var body[module_name] = $('body');
-        body[module_name].on('click', ".btnEditLumenAlbum", function(){
+        $(".edit-[module_name]").click(function(){
             var id = $(this).parent().parent().attr('id');
             // append loader
             $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
@@ -134,6 +133,9 @@ if (typeof [module_name]Tool != "object") {
         /*
          * delete an album
          */
+        $(".btnDelLumenAlbum").click(function(){
+            
+        });
         body[module_name].on('click', ".btnDelLumenAlbum", function(){
             var id = $(this).parent().parent().attr('id');
             melisCoreTool.confirm(
@@ -153,11 +155,10 @@ if (typeof [module_name]Tool != "object") {
         /*
          * refresh tool
          */
-        body[module_name].on('click', '.melis-lumen-refresh', function(){
+        $(".melis-lumen-refresh").click(function(){
             [module_name]Tool.refreshTool();
-        });
-        body[module_name].on('click', '.add-[module_name]', function(){
-            console.log('I was click');
+        })
+        $('.add-[module_name]').click(function(){
             // append loader
             $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
             // get the configured form
@@ -168,9 +169,9 @@ if (typeof [module_name]Tool != "object") {
         /*
          * cancel ajax request when canceled
          */
-        body[module_name].on('hidden.bs.modal',"#lumenModal",function(){
+        $("#lumenModal").on('hidden.bs.modal',"#lumenModal",function(){
             [module_name]Tool.currentRequest.abort();
         });
 
     })(jQuery);
-}
+//}

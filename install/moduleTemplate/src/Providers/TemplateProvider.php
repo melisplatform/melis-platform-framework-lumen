@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Config;
 class [module_name]Provider extends ServiceProvider
 {
     const CONFIGS = [
-       'table_config' =>  __DIR__ . "/../config/table.config.php"
+       'table_config' =>  __DIR__ . "/../config/table.config.php",
+       'form_config' => __DIR__ . "/../config/form.config.php"
     ];
 
     public function boot()
