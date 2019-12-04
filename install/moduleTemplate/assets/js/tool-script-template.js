@@ -100,8 +100,7 @@ window.[module_name]Tool = {
 };
 //if (typeof [module_name]Tool == undefined) {
     (function ($){
-        var body[module_name] = $('body');
-        $(".edit-[module_name]").click(function(){
+        $("body").on('click',".edit-[module_name]", function(){
             var id = $(this).parent().parent().attr('id');
             // append loader
             $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
@@ -110,13 +109,13 @@ window.[module_name]Tool = {
                 $(".modal-dynamic-content").html(data);
             },id);
         });
-        body[module_name].on('click', '#save-[module_name]', function(){
+        $("body").on('click', '#save-[module_name]', function(){
             $("#[form_name]").submit();
         });
         /*
          * submit form
          */
-        body[module_name].on('submit',"#[form_name]",function(e){
+        $("body").on('submit',"#[form_name]",function(e){
             e.preventDefault();
             var saveBtn = $("#btn-save-lumen-album");
             saveBtn.attr('disabled','disabled');
@@ -136,7 +135,7 @@ window.[module_name]Tool = {
         $(".btnDelLumenAlbum").click(function(){
             
         });
-        body[module_name].on('click', ".btnDelLumenAlbum", function(){
+        $("body").on('click', ".btnDelLumenAlbum", function(){
             var id = $(this).parent().parent().attr('id');
             melisCoreTool.confirm(
                 translations.tr_meliscore_common_yes,
@@ -155,10 +154,10 @@ window.[module_name]Tool = {
         /*
          * refresh tool
          */
-        $(".melis-lumen-refresh").click(function(){
+        $("body").on('click',".melis-lumen-refresh",function(){
             [module_name]Tool.refreshTool();
         })
-        $('.add-[module_name]').click(function(){
+        $("body").on('click','.add-[module_name]', function(){
             // append loader
             $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
             // get the configured form
@@ -169,7 +168,7 @@ window.[module_name]Tool = {
         /*
          * cancel ajax request when canceled
          */
-        body[module_name].on('hidden.bs.modal',"#[module_name]Modal",function(){
+        $("body").on('hidden.bs.modal',"#[module_name]Modal",function(){
             [module_name]Tool.currentRequest.abort();
         });
 
