@@ -95,11 +95,10 @@ class MelisPlatformToolService
                             // create form element
                             $formElements .= $this->createElement($elements, $data);
                         } else {
-                            if (! empty($data)) {
+                            if (! empty($data) && !empty($elements['hideNoData'])) {
                                 $formElements .= $this->createElement($elements,$data);
                             }
                         }
-
                     }
                 }
                 // construct form

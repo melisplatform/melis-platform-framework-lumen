@@ -9,4 +9,8 @@ $namespace = '[module_name]'; ?>
 <!-- temp modal -->
 @include($namespace . "::tool/tmp-modal")
 
-<script src="/melis/[module_name]/js/tool.js"></script>
+<script>
+    if (typeof kevinthegreatTool == "undefined") {
+        $("body").append('<script src="/melis/[module_name]/js/tool.js">');
+    }
+</script>

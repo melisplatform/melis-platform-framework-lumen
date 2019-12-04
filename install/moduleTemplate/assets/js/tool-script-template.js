@@ -110,7 +110,7 @@ window.[module_name]Tool = {
                 $(".modal-dynamic-content").html(data);
             },id);
         });
-        body[module_name].on('click', '#btn-save-lumen-album', function(){
+        body[module_name].on('click', '#save-[module_name]', function(){
             $("#[form_name]").submit();
         });
         /*
@@ -169,7 +169,7 @@ window.[module_name]Tool = {
         /*
          * cancel ajax request when canceled
          */
-        $("#lumenModal").on('hidden.bs.modal',"#lumenModal",function(){
+        body[module_name].on('hidden.bs.modal',"#[module_name]Modal",function(){
             [module_name]Tool.currentRequest.abort();
         });
 

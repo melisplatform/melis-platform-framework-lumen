@@ -17,7 +17,8 @@ Route::post('/melis/[module_name]/get-table-data', IndexController::class ."@get
 // get modal
 // get album form
 Route::get('/melis/[module_name]/get-tool-modal', IndexController::class . "@toolModalContent");
-
+// save album data
+Route::post('/melis/[module_name]/save' , IndexController::class . "@save" );
 
 
 

@@ -106,8 +106,8 @@ class MelisLumenModuleService
     public function __construct()
     {
         // set tool creator session
-        $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-//        $this->toolCreatorSession = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/../tcsession"));
+     //   $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
+        $this->toolCreatorSession = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/../tcsession"));
         // set model name
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
         // set table primary key
@@ -632,7 +632,7 @@ class MelisLumenModuleService
     {
         $string = "";
         foreach ($this->reOderFormFields() as $field => $options) {
-            $string .= "[\n\t\t\t 'label' => " . $options['label'] . ",\n\t\t\t 'tooltip' => " . $options['tooltip'] . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . $options['class'] . "',\n\t\t\t\t 'required' => '" . $options['required'] . "'\n\t\t\t] \n\t\t],";
+            $string .= "[\n\t\t\t 'label' => " . ($options['label'] ?? null) . ",\n\t\t\t 'tooltip' => " . ($options['tooltip'] ?? null ) . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . ($options['class'] ?? null ) . "',\n\t\t\t\t 'required' => '" .( $options['required'] ?? null ) . "'\n\t\t\t] \n\t\t],";
         }
 
         return $string;
@@ -650,13 +650,24 @@ class MelisLumenModuleService
         }
         // required columns
         foreach ($requiredCols as $idx => $field) {
-            $formFields[$field] = array_merge_recursive($formFields[$field],[
-                'required' => true,
-                'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
-                'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
-                'class'    => 'form-control',
-                'type'     => 'text'
-            ]);
+            $type = "text";
+            $hideNodata = false;
+            if ($field == $this->getTablePrimaryKey()) {
+                $formFields[$field] = array_merge_recursive($formFields[$field],[
+                    'hideNoData' => true,
+                    'type'     => 'hidden',
+                    'label' => '\'\'',
+                    'tooltip' => '\'\''
+                ]);
+            } else {
+                $formFields[$field] = array_merge_recursive($formFields[$field],[
+                    'required' => true,
+                    'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
+                    'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
+                    'class'    => 'form-control',
+                    'type'     => 'text'
+                ]);
+            }
         }
 
         return $formFields;

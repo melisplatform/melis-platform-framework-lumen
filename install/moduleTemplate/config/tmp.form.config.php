@@ -1,11 +1,12 @@
 
+$moduleName = strtolower('[module_name]');
 return [
     'form' => [
         'attributes' => [
-            'class' => '[module_name]form',
+            'class' => $moduleName .'form',
             'method' => 'POST',
-            'name'  => '[module_name]form',
-            'id'    => "[module_name]form"
+            'name'  => $moduleName . 'form',
+            'id'    => $moduleName . "form"
         ],
         'elements' => [
             [elements]

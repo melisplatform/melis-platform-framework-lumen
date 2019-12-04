@@ -71,7 +71,7 @@ class [template_service_name]
      * @return array
      * @throws \Exception
      */
-    public function saveToolData($data,$id = null)
+    public function save($data,$id = null)
     {
         $success = false;
         try {
@@ -124,9 +124,9 @@ class [template_service_name]
      * @param $albumName
      * @return array
      */
-    public function getEntryByName($albumName)
+    public function getEntryByName($name)
     {
-       return $this->toolTable::query()->where('alb_name',$albumName)->first();
+       return $this->toolTable::query()->where('alb_name',$name)->first();
     }
 
     public function getAlbumById($id)

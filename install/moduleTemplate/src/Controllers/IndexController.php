@@ -1,8 +1,8 @@
 namespace LumenModule\[module_name]\Http\Controllers;
 
 use Illuminate\Support\Facades\Config;
-use Laravel\Lumen\Routing\Controller as BaseController;
-use MelisPlatformFrameworkLumen\Service\MelisPlatformToolService;
+use Illuminate\Support\Facades\Validator;use Laravel\Lumen\Routing\Controller as BaseController;
+use MelisCore\Service\MelisCoreFlashMessengerService;use MelisPlatformFrameworkLumen\Service\MelisPlatformToolService;
 use LumenModule\[module_name]\Http\Service\[module_name]Service;
 use Illuminate\Http\Request;
 
@@ -98,6 +98,66 @@ class IndexController extends BaseController
             'form' => $this->melisToolService->createDynamicForm(Config::get('[module_name]')['form_config'],$data),
              'id' => $id
         ]);
+
+    }
+    public function save()
+    {
+        // errors
+        $errors = [];
+        // success status
+        $success = false;
+        // default message
+        $message = "tr_melis_lumen_notification_message_save_ko";
+        // default title
+        $title = "tr_melis_lumen_notification_title";
+        // get all request parameters
+        $requestParams = app('request')->request->all();
+        // log type for melis logging system
+        $logTypeCode = ucwords('[module_name]') . "_SAVE";
+        // flash messages icon
+        $icon = MelisCoreFlashMessengerService::WARNING;
+        // id
+        $id = null;
+
+        // check for errors
+        if (empty($errors)) {
+            // set to true
+            $success = true;
+            // set info icon for flash messeages
+            $icon = MelisCoreFlashMessengerService::INFO;
+            // check for id
+            if (isset($requestParams['alb_id']) && ! empty($requestParams['alb_id'])) {
+                // set id
+                $id = $requestParams['alb_id'];
+                // remove id from the parameters
+                unset($requestParams['alb_id']);
+                // set log type code
+                $logTypeCode = ucwords('[module_name]') . "_UPDATE";
+                // update album
+                $this->toolService->save($requestParams,$id);
+                // set message
+                $message = "tr_melis_lumen_notification_message_upate_ok";
+            } else {
+                $requestParams['alb_date'] = date('Y-m-d');
+                // save album data
+                $id = $this->toolService->save($requestParams)['id'];
+                // set message
+                $message = "tr_melis_lumen_notification_message_save_ok";
+            }
+        }
+
+        // add to melis flash messenger
+        $this->melisToolService->addToFlashMessenger($title, $message,$icon);
+        // save into melis logs
+        $this->melisToolService->saveLogs($title, $message, $success, $logTypeCode, $id);
+
+        // return required data
+        return [
+            'errors' => $errors,
+            'success' => $success,
+            'textMessage' => $message,
+            'textTitle' => $title
+        ];
 
     }
 }
