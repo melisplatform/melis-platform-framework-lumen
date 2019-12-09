@@ -90,9 +90,9 @@ class IndexController extends BaseController
     {
         $id = app('request')->request->get('id') ?? null;
         $data = [];
-        //if ($albumId) {
-          //  $data = $this->toolService->getAlbumById($albumId)->toArray();
-    //    }
+        if ($id) {
+            $data = $this->toolService->getDataById($id)->toArray();
+        }
 
         return view("$this->viewNamespace::tool/modal-content",[
             'form' => $this->melisToolService->createDynamicForm(Config::get('[module_name]')['form_config'],$data),
@@ -173,5 +173,46 @@ class IndexController extends BaseController
         }
 
         return $newTranslations;
+    }
+    public function delete()
+    {
+        // errors
+        $errors = [];
+        // success status
+        $success = false;
+        // default message
+        $message = "Unable to delete";
+        // default title
+        $title = "tr_melis_lumen_notification_title";
+        // get all request parameters
+        $requestParams = app('request')->request->all();
+        // log type for melis logging system
+        $logTypeCode = ucwords('[module_name]') . "_DELETE";
+        // flash messages icon
+        $icon = MelisCoreFlashMessengerService::WARNING;
+        // id
+        $id = app('request')->request->get('id');
+
+        if (empty($id)) {
+            throw new \Exception('No id was passed');
+        }
+
+        if ( $this->toolService->delete($id)) {
+            $success = true;
+            $icon = MelisCoreFlashMessengerService::INFO;
+            $message = "tr_melis_lumen_notification_message_delete_ok";
+        }
+
+        // add to melis flash messenger
+        $this->melisToolService->addToFlashMessenger($title, $message,$icon);
+        // save into melis logs
+        $this->melisToolService->saveLogs($title, $message, $success, $logTypeCode, $id);
+
+        return [
+            'success' => $success,
+            'error'   => $errors,
+            'textMessage' => $message,
+            'textTitle' => $title
+        ];
     }
 }

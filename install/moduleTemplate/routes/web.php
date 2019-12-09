@@ -19,6 +19,8 @@ Route::post('/melis/[module_name]/get-table-data', IndexController::class ."@get
 Route::get('/melis/[module_name]/get-tool-modal', IndexController::class . "@toolModalContent");
 // save album data
 Route::post('/melis/[module_name]/save' , IndexController::class . "@save" );
+// delete album
+Route::post('/melis/[module_name]/delete' , IndexController::class . "@delete" );
 
 
 

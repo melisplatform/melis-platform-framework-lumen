@@ -26,8 +26,8 @@ return array(
         'columns' => [tool_columns]
         'searchables' => [tool_searchables]
         'actionButtons' => array(
-            'edit' => "<a href=\"#modal-template-manager-actions\" data-toggle=\"modal\" data-target=\"#lumenModal\" class=\"btn btn-success edit-".  $smModuleName  . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_edit") ."\"> <i class=\"fa fa-pencil\"> </i> </a>\t",
-            'delete' => "<a class=\"btn btn-danger btnDelLumenAlbum\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_delete")  ."\" > <i class=\"fa fa-times\"> </i> </a>"
+            'edit' => "<a href=\"#modal-template-manager-actions\" data-toggle=\"modal\" data-target=\"#" . $smModuleName  . "Modal\" class=\"btn btn-success edit-".  $smModuleName  . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_edit") ."\"> <i class=\"fa fa-pencil\"> </i> </a>\t",
+            'delete' => "<a class=\"btn btn-danger delete-" . $smModuleName . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_delete")  ."\" > <i class=\"fa fa-times\"> </i> </a>"
         ),
     ),
 );

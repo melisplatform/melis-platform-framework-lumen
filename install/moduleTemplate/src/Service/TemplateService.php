@@ -104,7 +104,7 @@ class [template_service_name]
      * @return array
      * @throws \Exception
      */
-    public function deleteToolData($id)
+    public function delete($id)
     {
         $success = false;
         try {
@@ -132,9 +132,9 @@ class [template_service_name]
        return $this->toolTable::query()->where('alb_name',$name)->first();
     }
 
-    public function getAlbumById($id)
+    public function getDataById($id)
     {
-        return $this->toolTable::query()->where('alb_id',$id)->first();
+        return $this->toolTable::query()->where('[primary_key]',$id)->first();
     }
     public function constructValidator($postData,$formConfig = [])
     {

@@ -75,7 +75,7 @@ window.[module_name]Tool = {
         if (typeof(callback) ==='undefined') callback = null;
         $.ajax({
             type        : 'POST',
-            url         : '/melis/[module_name]/delete-lumen-album',
+            url         : '/melis/[module_name]/delete',
             data        : { id : id},
             dataType    : 'json',
             encode		: true
@@ -123,7 +123,7 @@ window.[module_name]Tool = {
             [module_name]Tool.saveAlbumData(formData,function(){
                 $(".lumen-modal-close").trigger('click');
                 // reload the tool
-                [module_name]Tool.refreshTool();
+                [module_name]Tool.refreshTable();
             },function(){
                 saveBtn.removeAttr('disabled')
             });
@@ -135,7 +135,7 @@ window.[module_name]Tool = {
         $(".btnDelLumenAlbum").click(function(){
             
         });
-        $("body").on('click', ".btnDelLumenAlbum", function(){
+        $("body").on('click', ".delete-[module_name]", function(){
             var id = $(this).parent().parent().attr('id');
             melisCoreTool.confirm(
                 translations.tr_meliscore_common_yes,
@@ -146,7 +146,7 @@ window.[module_name]Tool = {
                     // append loader
                     [module_name]Tool.deleteAlbum(id,function(){
                         // refresh tool
-                        [module_name]Tool.refreshTool();
+                        [module_name]Tool.refreshTable();
                     });
                 }
             );
@@ -155,7 +155,7 @@ window.[module_name]Tool = {
          * refresh tool
          */
         $("body").on('click',".melis-lumen-refresh",function(){
-            [module_name]Tool.refreshTool();
+            [module_name]Tool.refreshTable();
         })
         $("body").on('click','.add-[module_name]', function(){
             // append loader
