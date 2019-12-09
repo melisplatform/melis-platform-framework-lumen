@@ -23,6 +23,10 @@
         "zf2",
         "module"
     ],
+    "extra": {
+        "melis-module": false,
+        "module-name": "MelisPlatformFrameworkLumen"
+    },
     "autoload": {
         "psr-4": {
             "MelisPlatformFrameworkLumen\\": "src/",
