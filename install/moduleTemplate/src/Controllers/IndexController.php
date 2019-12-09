@@ -118,7 +118,11 @@ class IndexController extends BaseController
         $icon = MelisCoreFlashMessengerService::WARNING;
         // id
         $id = null;
-
+        // construct validator
+        $validator = $this->toolService->constructValidator($requestParams,Config::get('[module_name]')['form_config']);
+        if ($validator->fails()) {
+            $errors = $this->formatErrorMessages($validator->errors()->toArray());
+        }
         // check for errors
         if (empty($errors)) {
             // set to true
@@ -159,5 +163,15 @@ class IndexController extends BaseController
             'textTitle' => $title
         ];
 
+    }
+    private function formatErrorMessages($errorMessages)
+    {
+        $newTranslations = [];
+        foreach ($errorMessages as $key => $trans) {
+            $label = __("[module_name]::messages.tr_" .strtolower('[module_name]') . "_$key");
+            $newTranslations[$label] = $trans;
+        }
+
+        return $newTranslations;
     }
 }

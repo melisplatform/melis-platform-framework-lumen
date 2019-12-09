@@ -3,6 +3,9 @@ namespace LumenModule\[module_name]\Http\Service;
 use Illuminate\Support\Facades\Config;
 use MelisPlatformFrameworkLumen\MelisServiceProvider;
 use LumenModule\[module_name]\Http\Model\[model_name];
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Validator;
+use Doctrine\DBAL\Types\Types;
 
 class [template_service_name]
 {
@@ -133,5 +136,35 @@ class [template_service_name]
     {
         return $this->toolTable::query()->where('alb_id',$id)->first();
     }
+    public function constructValidator($postData,$formConfig = [])
+    {
+        $tableFieldDataTypes = $this->getFieldDataTypes($this->toolTable->getTable());
+        $formElements = $formConfig['form']['elements'];
+        $translations = [];
+        foreach ($formElements as $idx => $elem) {
+            $name = $elem['attributes']['name'];
+            // for integer
+            if ($tableFieldDataTypes[$name] == Types::INTEGER) {
+                $translations[$name. "." . Types::INTEGER] = __("lumenDemo::translations.tr_melis_lumen_notification_not_int");
+            }
+            if (isset($elem['attributes']['required']) && $elem['attributes']['required']) {
+                $tableFieldDataTypes[$name] = $tableFieldDataTypes[$name] . "|required";
+                $translations[$name. ".required"] = __("lumenDemo::translations.tr_melis_lumen_notification_empty");
+            }
+        }
 
+        return Validator::make($postData,$tableFieldDataTypes, $translations);
+    }
+
+    public function getFieldDataTypes($tableName)
+    {
+        $con = Schema::connection('melis');
+        $fields = [];
+        // get table field data type fields
+        foreach ($con->getColumnListing($tableName) as $tblField) {
+            $fields[$tblField] = $con->getColumnType($tableName,$tblField);
+        }
+
+        return $fields;
+    }
 }

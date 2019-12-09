@@ -2,6 +2,7 @@
 namespace MelisPlatformFrameworkLumen\Service;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use MelisComposerDeploy\MelisComposer;
 use MelisComposerDeploy\Service\MelisComposerService;
 use SebastianBergmann\CodeCoverage\Report\PHP;
@@ -106,8 +107,7 @@ class MelisLumenModuleService
     public function __construct()
     {
         // set tool creator session
-     //   $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-        $this->toolCreatorSession = unserialize(file_get_contents($_SERVER['DOCUMENT_ROOT'] . "/../tcsession"));
+        $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
         // set model name
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
         // set table primary key
@@ -631,17 +631,20 @@ class MelisLumenModuleService
     public function getFormFields()
     {
         $string = "";
-        foreach ($this->reOderFormFields() as $field => $options) {
-            $string .= "[\n\t\t\t 'label' => " . ($options['label'] ?? null) . ",\n\t\t\t 'tooltip' => " . ($options['tooltip'] ?? null ) . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . ($options['class'] ?? null ) . "',\n\t\t\t\t 'required' => '" .( $options['required'] ?? null ) . "'\n\t\t\t] \n\t\t],";
+        foreach ($this->getTableFields() as $field => $options) {
+            $string .= "[\n\t\t\t 'label' => " . ($options['label'] ?? null) . ",\n\t\t\t 'tooltip' => " . ($options['tooltip'] ?? null ) . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'editable' => '" .( $options['editable'] ?? false ) . "', \n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . ($options['class'] ?? null ) . "',\n\t\t\t\t 'required' => '" .( $options['required'] ?? null ) . "',\n\t\t\t] \n\t\t],";
         }
 
         return $string;
     }
-    private function reOderFormFields()
+    private function getTableFields()
     {
         $formFields = [];
+        // get editable columns
         $editableCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-editable'];
+        // get required columns
         $requiredCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-required'];
+
         // editable columns
         foreach ($editableCols as $idx => $field) {
             $formFields[$field] = [
@@ -704,6 +707,12 @@ class MelisLumenModuleService
         }
         return $commonTranslations;
 
+    }
+
+    public function makeValidator($postData , $fields = [],$messages =  [])
+    {
+        // make a validator for the request parameters
+        return Validator::make($requestParams,$fields ,$messages);
     }
 
 

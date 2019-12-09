@@ -110,12 +110,12 @@ window.[module_name]Tool = {
             },id);
         });
         $("body").on('click', '#save-[module_name]', function(){
-            $("#[form_name]").submit();
+            $("#[module_name]form").submit();
         });
         /*
          * submit form
          */
-        $("body").on('submit',"#[form_name]",function(e){
+        $("body").on('submit',"#[module_name]form",function(e){
             e.preventDefault();
             var saveBtn = $("#btn-save-lumen-album");
             saveBtn.attr('disabled','disabled');
