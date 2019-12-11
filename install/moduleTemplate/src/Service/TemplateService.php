@@ -167,4 +167,15 @@ class [template_service_name]
 
         return $fields;
     }
+    public function getTableFields()
+    {
+        $con = Schema::connection('melis');
+        $fields = [];
+        // get table field data type fields
+        foreach ($con->getColumnListing($this->toolTable->getTable()) as $tblField) {
+            $fields[] = $tblField;
+        }
+
+        return $fields;
+    }
 }

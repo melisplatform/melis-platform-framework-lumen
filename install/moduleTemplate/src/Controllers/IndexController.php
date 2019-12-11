@@ -37,7 +37,7 @@ class IndexController extends BaseController
         $draw = 0;
         $dataFiltered = 0;
         $tableData = array();
-
+        $parimaryKey = '[primary_key]';
         if($request->getMethod() == Request::METHOD_POST) {
 
             $lumenAlbumSrvc = $this->toolService;
@@ -63,18 +63,19 @@ class IndexController extends BaseController
             $data = $lumenAlbumSrvc->getDataWithFilters($start,$length,$searchableCols,$search,$selCol,$sortOrder);
             // get total count of the data in the db
             $dataCount = $data['dataCount'];
-            $albumData = $data['data'];
             // organized data
             $c = 0;
-            foreach($albumData as $data){
-                $tableData[$c]['DT_RowId'] = $data->alb_id;
-                $tableData[$c]['alb_id'] = $data->alb_id;
-                $tableData[$c]['alb_name'] = $data->alb_name;
-                $tableData[$c]['alb_date'] = $data->alb_date;
-                $tableData[$c]['alb_song_num'] = $data->alb_song_num;
-                $c++;
+            foreach($data['data'] as $datum){
+                foreach ($this->toolService->getTableFields() as $field) {
+                    if ($datum->$field == $parimaryKey) {
+                        $tableData[$c]['DT_RowId'] = $datum->alb_id;
+                    } else {
+                        $tableData[$c][$field] = $datum->$field;
+                    }
                 }
+                $c++;
             }
+        }
 
         return [
             'draw' => $draw,

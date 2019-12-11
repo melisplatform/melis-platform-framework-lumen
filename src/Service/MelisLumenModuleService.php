@@ -195,6 +195,7 @@ class MelisLumenModuleService
      */
     public function add($newClass)
     {
+
         // get service provider file path
         $serviceProviders = require $this->getServiceProvidersPath();
         // check if class exists
@@ -346,6 +347,7 @@ class MelisLumenModuleService
         }
         // get the template controller
         $tmpController = file_get_contents(self::TEMPLATE_CONTROLLER);
+        $tmpController = str_replace('[primary_key]',$this->getTablePrimaryKey(),$tmpController);
         // replace module_name in file
         $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpController);
         // create a file
