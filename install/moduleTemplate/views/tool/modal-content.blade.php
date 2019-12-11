@@ -1,10 +1,10 @@
 
 $smModuleName = strtolower('[module_name]');
 $icon = "plus";
-$text = "lumenDemo::translations.tr_melis_lumen_modal_add_title";
+$text =  '[module_name]::messages.tr_' . $smModuleName . '_common_add';
 if ($id) {
     $icon = "pencil";
-    $text = "lumenDemo::translations.tr_melis_lumen_modal_edit_title";
+    $text = '[module_name]::messages.tr_' . $smModuleName . '_common_edit';
 }
 ?>
 <div class="widget-head">

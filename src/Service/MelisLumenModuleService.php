@@ -108,6 +108,8 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
+        // set module name
+        $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
         // set model name
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
         // set table primary key
@@ -237,10 +239,8 @@ class MelisLumenModuleService
 
         return false;
     }
-    public function createModule($moduleName)
+    public function createModule()
     {
-        // set module name
-        $this->setModuleName($moduleName);
         // create module directory
         $this->createModuleDir();
         // construct other folders
@@ -265,7 +265,7 @@ class MelisLumenModuleService
         $this->createServiceFile();
 
         return [
-            "message" => 'Module ' . $moduleName . " created successfully"
+            "message" => 'Module ' . $this->getModuleName() . " created successfully"
         ];
     }
     private function createModuleDir()
@@ -390,7 +390,9 @@ class MelisLumenModuleService
             foreach ($translations[$locale] as $key => $val) {
                 $tmpData .= "\t\"".$key . "\" => \"" . $val . "\",\n";
             }
+            $tmpData = str_replace('$',"\\$",$tmpData);
             $data = $phpTag . "\n return [\n" . $tmpData . " ];";
+
             // create a file
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."messages.php",$data);
         }

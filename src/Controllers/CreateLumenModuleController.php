@@ -17,22 +17,8 @@ class CreateLumenModuleController extends Controller
         $this->moduleService = $lumenModuleService;
     }
 
-    public function createModule($moduleName)
+    public function createModule()
     {
-        $validator = Validator::make(['module_name' => $moduleName],[
-            'module_name' => 'alpha_num'
-        ]);
-
-        if($validator->fails()) {
-           die($validator->errors()->first());
-        }
-
-        $this->moduleService->createModule($moduleName);
-
-        return [
-            'success' => true,
-            'module' => $moduleName,
-            'message' => 'Module ' . $moduleName . " is successfully created !"
-        ];
+        return $this->moduleService->createModule();
     }
 }

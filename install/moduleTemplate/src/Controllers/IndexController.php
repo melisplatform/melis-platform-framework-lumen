@@ -110,7 +110,7 @@ class IndexController extends BaseController
         // default message
         $message = "tr_melis_lumen_notification_message_save_ko";
         // default title
-        $title = "tr_melis_lumen_notification_title";
+        $title = "tr_" . strtolower('[module_name]') ."_title";
         // get all request parameters
         $requestParams = app('request')->request->all();
         // log type for melis logging system

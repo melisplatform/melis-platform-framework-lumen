@@ -1,4 +1,5 @@
-$namespace = '[module_name]'; ?>
+$namespace = '[module_name]';
+$lowerCase = strtolower($namespace);?>
 <!-- header area -->
 @include($namespace . "::tool/header")
 
@@ -10,7 +11,7 @@ $namespace = '[module_name]'; ?>
 @include($namespace . "::tool/tmp-modal")
 
 <script>
-    if (typeof kevinthegreatTool == "undefined") {
+    if (typeof {{ $lowerCase }}Tool == "undefined") {
         $("body").append('<script src="/melis/[module_name]/js/tool.js">');
     }
 </script>
