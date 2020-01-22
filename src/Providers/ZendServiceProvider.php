@@ -44,10 +44,10 @@ class ZendServiceProvider extends ServiceProvider
         $this->app->singleton('ZendTranslator' , function(){
             return $this->zendServiceManager->get('translator');
         });
+
         $this->app->singleton('MelisToolCreatorSession' , function(){
             return new Container('melistoolcreator');
         });
-
 
     }
 
@@ -96,6 +96,7 @@ class ZendServiceProvider extends ServiceProvider
         $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+
         // selective view helper classes in order not to complicate with lumen pre-defined  classes
         $allowedHelpers = [
             'meliscoreicon',
@@ -111,7 +112,7 @@ class ZendServiceProvider extends ServiceProvider
             "melispagelanglink",
             "sitetranslate",
             "siteconfig",
-            "melisdatatable"
+            "melisdatatable",
         ];
         // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {

@@ -131,11 +131,11 @@ class IndexController extends BaseController
             // set info icon for flash messeages
             $icon = MelisCoreFlashMessengerService::INFO;
             // check for id
-            if (isset($requestParams['alb_id']) && ! empty($requestParams['alb_id'])) {
+            if (isset($requestParams['[primary_key]']) && ! empty($requestParams['[primary_key]'])) {
                 // set id
-                $id = $requestParams['alb_id'];
+                $id = $requestParams['[primary_key]'];
                 // remove id from the parameters
-                unset($requestParams['alb_id']);
+                unset($requestParams['[primary_key]']);
                 // set log type code
                 $logTypeCode = ucwords('[module_name]') . "_UPDATE";
                 // update album
@@ -143,7 +143,6 @@ class IndexController extends BaseController
                 // set message
                 $message = "tr_melis_lumen_notification_message_upate_ok";
             } else {
-                $requestParams['alb_date'] = date('Y-m-d');
                 // save album data
                 $id = $this->toolService->save($requestParams)['id'];
                 // set message

@@ -3,6 +3,7 @@ namespace MelisPlatformFrameworkLumen\Service;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use MelisAssetManager\Service\MelisConfigService;
 use MelisComposerDeploy\MelisComposer;
 use MelisComposerDeploy\Service\MelisComposerService;
 use SebastianBergmann\CodeCoverage\Report\PHP;
@@ -114,6 +115,7 @@ class MelisLumenModuleService
         $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
         // set table primary key
         $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
+
     }
 
     public function getTablePrimaryKey()
@@ -388,7 +390,7 @@ class MelisLumenModuleService
             // replace module_name in file
             $tmpData =  "";
             foreach ($translations[$locale] as $key => $val) {
-                $tmpData .= "\t\"".$key . "\" => \"" . $val . "\",\n";
+                $tmpData .= "\t\"".$key . "\" => \"" . preg_replace("/\r|\n/", "", $val) . "\",\n";
             }
             $tmpData = str_replace('$',"\\$",$tmpData);
             $data = $phpTag . "\n return [\n" . $tmpData . " ];";
@@ -636,18 +638,76 @@ class MelisLumenModuleService
     {
         $string = "";
         foreach ($this->getTableFields() as $field => $options) {
-            $string .= "[\n\t\t\t 'label' => " . ($options['label'] ?? null) . ",\n\t\t\t 'tooltip' => " . ($options['tooltip'] ?? null ) . ",\n\t\t\t 'type' => '" . $options['type'] . "',\n\t\t\t 'attributes' => [\n\t\t\t\t 'editable' => '" .( $options['editable'] ?? false ) . "', \n\t\t\t\t 'name' => '" . $field . "',\n\t\t\t\t 'class' => '" . ($options['class'] ?? null ) . "',\n\t\t\t\t 'required' => '" .( $options['required'] ?? null ) . "',\n\t\t\t] \n\t\t],";
+            switch ($options['type']) {
+                case "File":
+        $string .=
+            "[
+                'type' => '". $options['type'] . "',
+                'name' => '". $field . "',
+                'options' => [
+                    'label'   => " . ($options['label'] ?? null) . ",
+                    'tooltip' => " . ($options['tooltip'] ?? null) . ",
+                    'filestyle_options' => [
+                        'buttonBefore' => true,
+                        'buttonText' => 'Choose',
+                     ]
+                ],
+                'attributes' => [
+                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'class'   => 'form-control',
+                ],
+            ],\n\t\t\t";break;
+                case "Switch" :
+        $string .=
+            "[
+                'type' => 'checkbox',
+                'name' => '". $field . "',
+                'options' => [
+                    'label'   => " . ($options['label'] ?? null) . ",
+                    'tooltip' => " . ($options['tooltip'] ?? null) . ",
+                    'switchOptions' => [
+                        'label' => 'STATUS',
+                        'label-on' => 'YES',
+                        'label-off' => 'NO',
+                        'icon' => \"glyphicon glyphicon-resize-horizontal\",
+                    ],
+                    'value_options' => [
+                        'on' => 'on',
+                    ],
+                ],
+                'attributes' => [
+                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'class'   => 'form-control',
+                ],
+            ],\n\t\t\t";break;
+                default :
+        $string .=
+            "[
+                'type' => '". $options['type'] . "',
+                'name' => '". $field . "',
+                'options' => [
+                    'label'   => " . ($options['label'] ?? null) . ",
+                    'tooltip' => " . ($options['tooltip'] ?? null) . ",
+                ],
+                'attributes' => [
+                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'class'   => 'form-control',
+                ],
+            ],\n\t\t\t";break;
+            }
         }
 
         return $string;
     }
     private function getTableFields()
     {
+
         $formFields = [];
         // get editable columns
         $editableCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-editable'];
         // get required columns
         $requiredCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-required'];
+        $fieldTypes   = $this->getToolCreatorSession()['step5']['tcf-db-table-col-type'];
 
         // editable columns
         foreach ($editableCols as $idx => $field) {
@@ -657,7 +717,10 @@ class MelisLumenModuleService
         }
         // required columns
         foreach ($requiredCols as $idx => $field) {
-            $type = "text";
+            $type = $fieldTypes[$idx];
+            if ($type == "Switch") {
+                $type = "checkbox";
+            }
             $hideNodata = false;
             if ($field == $this->getTablePrimaryKey()) {
                 $formFields[$field] = array_merge_recursive($formFields[$field],[
@@ -671,11 +734,12 @@ class MelisLumenModuleService
                     'required' => true,
                     'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
                     'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
-                    'class'    => 'form-control',
-                    'type'     => 'text'
+                    'class'    => $field,
+                    'type'     => $type
                 ]);
             }
         }
+
 
         return $formFields;
     }
