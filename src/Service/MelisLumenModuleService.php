@@ -481,7 +481,7 @@ class MelisLumenModuleService
     private function createAssetsFile()
     {
         foreach (self::ASSETS as $idx => $file) {
-            $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "assets" . DIRECTORY_SEPARATOR . $idx;
+            $pathToCreate = __DIR__ . "/../../../../../module/" . $this->getModuleName() . DIRECTORY_SEPARATOR  . "public" . DIRECTORY_SEPARATOR . "js";
             // create directory
             if (!file_exists($pathToCreate)) {
                 mkdir($pathToCreate,077);

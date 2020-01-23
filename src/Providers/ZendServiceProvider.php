@@ -69,7 +69,6 @@ class ZendServiceProvider extends ServiceProvider
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
         // add melis helpers
-        $this->syncZendMelisViewHelpers();
         // set application locale
         $this->setLocale();
 
