@@ -3,12 +3,6 @@ namespace MelisPlatformFrameworkLumen\Service;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use MelisAssetManager\Service\MelisConfigService;
-use MelisComposerDeploy\MelisComposer;
-use MelisComposerDeploy\Service\MelisComposerService;
-use SebastianBergmann\CodeCoverage\Report\PHP;
-use Symfony\Component\Console\Input\StringInput;
-use Zend\Session\Container;
 
 class MelisLumenModuleService
 {
@@ -109,12 +103,16 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-        // set module name
-        $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
-        // set model name
-        $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
-        // set table primary key
-        $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
+        if (! empty($this->toolCreatorSession)) {
+            // set module name
+            $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
+            // set model name
+            $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
+            // set table primary key
+            $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
+        } else {
+            die("Run first melis tool creator with an option of create a tool with framework");
+        }
 
     }
 
@@ -205,7 +203,7 @@ class MelisLumenModuleService
         // check if class exists
         if (class_exists($newClass)) {
             // add only when class is not yet listed
-            if (!in_array($newClass,$serviceProviders)){
+            if (!in_array($newClass, $serviceProviders)){
                 array_push($serviceProviders,$newClass);
                 // prepend and append some string of the array value
                 $providers = array_map(function($serviceProviders){
@@ -302,8 +300,7 @@ class MelisLumenModuleService
             'routes',
             'http',
             'providers',
-            'views',
-            'assets'
+            'views'
         ];
         // create folders
         foreach ($foldersToCreate as $i => $val) {
@@ -514,7 +511,7 @@ class MelisLumenModuleService
         ];
         // get melis_core_language
         $localesHasTranslations = [];
-        $coreLanguage = $this->getMelisLanguages();
+        $coreLanguage = $this->getMelisLanguages();    
         // self::p($this->toolCreatorSession);
         foreach ($coreLanguage as $i => $locale) {
             if (!empty($this->getToolCreatorSession()['step2'][$locale]['tcf-title'])){
@@ -637,9 +634,13 @@ class MelisLumenModuleService
     public function getFormFields()
     {
         $string = "";
+        /*
+         * construct form fields
+         */
+     
         foreach ($this->getTableFields() as $field => $options) {
             switch ($options['type']) {
-                case "File":
+                case "File" || "file":
         $string .=
             "[
                 'type' => '". $options['type'] . "',
@@ -653,11 +654,12 @@ class MelisLumenModuleService
                      ]
                 ],
                 'attributes' => [
-                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
             ],\n\t\t\t";break;
-                case "Switch" :
+                
+                case "Switch" || "switch" :
         $string .=
             "[
                 'type' => 'checkbox',
@@ -676,7 +678,7 @@ class MelisLumenModuleService
                     ],
                 ],
                 'attributes' => [
-                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
             ],\n\t\t\t";break;
@@ -690,7 +692,7 @@ class MelisLumenModuleService
                     'tooltip' => " . ($options['tooltip'] ?? null) . ",
                 ],
                 'attributes' => [
-                    'required'   => '" . (($options['label']) ? "required" : null) . "',
+                    'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
             ],\n\t\t\t";break;
@@ -701,46 +703,43 @@ class MelisLumenModuleService
     }
     private function getTableFields()
     {
-
         $formFields = [];
         // get editable columns
         $editableCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-editable'];
         // get required columns
         $requiredCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-required'];
+        // input types
         $fieldTypes   = $this->getToolCreatorSession()['step5']['tcf-db-table-col-type'];
-
         // editable columns
         foreach ($editableCols as $idx => $field) {
+            $type = $fieldTypes[$idx];
+            // change switch to checkbox
+            switch($fieldTypes[$idx]) {
+                case "Switch" :
+                    $type = "checkbox";
+                    break;
+            }    
+            // put requried properties of an element
             $formFields[$field] = [
-                'editable' => true
+                'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
+                'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
+                'class'    => $field,
+                'type'     => $type
             ];
+            // check for id make it hidden
+            if ($field == $this->getTablePrimaryKey()) {
+                $formFields[$field]['type'] = "hidden";
+            } 
+            // make columns editable except for table primary key 
+            if ($field != $this->getTablePrimaryKey()) {
+                $formFields[$field]['editable'] = true;
+            }
         }
         // required columns
         foreach ($requiredCols as $idx => $field) {
-            $type = $fieldTypes[$idx];
-            if ($type == "Switch") {
-                $type = "checkbox";
-            }
-            $hideNodata = false;
-            if ($field == $this->getTablePrimaryKey()) {
-                $formFields[$field] = array_merge_recursive($formFields[$field],[
-                    'hideNoData' => true,
-                    'type'     => 'hidden',
-                    'label' => '\'\'',
-                    'tooltip' => '\'\''
-                ]);
-            } else {
-                $formFields[$field] = array_merge_recursive($formFields[$field],[
-                    'required' => true,
-                    'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
-                    'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
-                    'class'    => $field,
-                    'type'     => $type
-                ]);
-            }
+           $formFields[$field]['required'] = true;
         }
-
-
+        
         return $formFields;
     }
     public function getTableName()

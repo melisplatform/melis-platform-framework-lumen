@@ -139,7 +139,7 @@ class MelisPlatformToolService
     protected function createElement($elements, $data = [])
     {
         if ($this->checkArraykey('type',$elements)) {
-            $element = $this->renderMelisElement($elements);
+            $element = $this->renderMelisElement($elements, $data);
         }
         // set form elements
        return $element;
@@ -160,7 +160,7 @@ class MelisPlatformToolService
 
         return $melisElementTypes;
     }
-    public function renderMelisElement($elementConfig)
+    public function renderMelisElement($elementConfig, $data = [])
     {
         /** @var Element $element */
         $element = app('ZendServiceManager')->get("FormElementManager")->get($elementConfig['type']);
@@ -175,6 +175,11 @@ class MelisPlatformToolService
         // set name
         if ($this->checkArraykey('name',$elementConfig)) {
             $element->setName($elementConfig['name']);
+        }
+        if (! empty($data)) {
+           if (! empty($data[$elementConfig['name']])) {
+               $element->setValue($data[$elementConfig['name']]);
+           }
         }
         // render element
         return app('ZendServiceManager')->get('ViewHelperManager')->get('MelisFieldRow')($element);

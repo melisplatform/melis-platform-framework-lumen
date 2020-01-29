@@ -68,7 +68,7 @@ class IndexController extends BaseController
             foreach($data['data'] as $datum){
                 foreach ($this->toolService->getTableFields() as $field) {
                     if ($datum->$field == $parimaryKey) {
-                        $tableData[$c]['DT_RowId'] = $datum->alb_id;
+                        $tableData[$c]['DT_RowId'] = $datum->[primary_key];
                     } else {
                         $tableData[$c][$field] = $datum->$field;
                     }
