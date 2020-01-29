@@ -49,7 +49,6 @@ class IndexController extends BaseController
             $sortOrder = $params['order'][0]['dir'];
             $selCol    = $params['order'];
             $colId     = array_keys($tableConfig['table']['columns']);
-            $selCol    = $colId[$selCol[0]['column']];
             $draw      = $params['draw'];
             // pagination start
             $start     = $params['start'];
@@ -60,14 +59,14 @@ class IndexController extends BaseController
             // get all searchable columns from the config
             $searchableCols = $tableConfig['table']['searchables'] ?? [];
             // get data from the service
-            $data = $lumenAlbumSrvc->getDataWithFilters($start,$length,$searchableCols,$search,$selCol,$sortOrder);
+            $data = $lumenAlbumSrvc->getDataWithFilters($start,$length,$searchableCols,$search,$parimaryKey,$sortOrder);
             // get total count of the data in the db
             $dataCount = $data['dataCount'];
             // organized data
             $c = 0;
             foreach($data['data'] as $datum){
                 foreach ($this->toolService->getTableFields() as $field) {
-                    if ($datum->$field == $parimaryKey) {
+                    if ($field == $parimaryKey) {
                         $tableData[$c]['DT_RowId'] = $datum->[primary_key];
                     } else {
                         $tableData[$c][$field] = $datum->$field;

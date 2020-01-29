@@ -615,7 +615,13 @@ class MelisLumenModuleService
         $partialContent = null;
         $columnsWidth = round(90/count($columns));
         foreach ($columns as $i => $val) {
-            $partialContent .= "\t\t\t'$val'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";
+            $mainId = "";
+            if ($val == $this->getTablePrimaryKey()) {
+                $mainId = "DT_RowId";
+            } else {
+                $mainId = $val;
+            }
+            $partialContent .= "\t\t\t'$mainId'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";
         }
 
         return "[\n  " . $partialContent ." \t\t],";
@@ -637,13 +643,12 @@ class MelisLumenModuleService
         /*
          * construct form fields
          */
-     
         foreach ($this->getTableFields() as $field => $options) {
             switch ($options['type']) {
-                case "File" || "file":
+                case "File":
         $string .=
             "[
-                'type' => '". $options['type'] . "',
+                'type' => 'file',
                 'name' => '". $field . "',
                 'options' => [
                     'label'   => " . ($options['label'] ?? null) . ",
@@ -657,9 +662,9 @@ class MelisLumenModuleService
                     'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
-            ],\n\t\t\t";break;
-                
-                case "Switch" || "switch" :
+            ],\n\t\t\t";
+                    break;
+                case "Switch" :
         $string .=
             "[
                 'type' => 'checkbox',
@@ -681,7 +686,8 @@ class MelisLumenModuleService
                     'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
-            ],\n\t\t\t";break;
+            ],\n\t\t\t";
+        break;
                 default :
         $string .=
             "[
@@ -713,12 +719,6 @@ class MelisLumenModuleService
         // editable columns
         foreach ($editableCols as $idx => $field) {
             $type = $fieldTypes[$idx];
-            // change switch to checkbox
-            switch($fieldTypes[$idx]) {
-                case "Switch" :
-                    $type = "checkbox";
-                    break;
-            }    
             // put requried properties of an element
             $formFields[$field] = [
                 'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
@@ -737,8 +737,11 @@ class MelisLumenModuleService
         }
         // required columns
         foreach ($requiredCols as $idx => $field) {
-           $formFields[$field]['required'] = true;
+            if ($field != $this->getTablePrimaryKey()) {
+                 $formFields[$field]['required'] = true;
+            }
         }
+        
         
         return $formFields;
     }

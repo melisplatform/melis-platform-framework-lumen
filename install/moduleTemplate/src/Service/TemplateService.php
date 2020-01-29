@@ -139,10 +139,19 @@ class [template_service_name]
     public function constructValidator($postData,$formConfig = [])
     {
         $tableFieldDataTypes = $this->getFieldDataTypes($this->toolTable->getTable());
+        $fieldDiff = array_diff(array_keys($tableFieldDataTypes),array_keys($postData));
+        // ensure all fields are present for boolean
+        if (! empty($fieldDiff)) {
+            if (!isset($postData[array_values($fieldDiff)[0]]))
+                $postData[array_values($fieldDiff)[0]] = false;
+        }
         $formElements = $formConfig['form']['elements'];
         $translations = [];
         foreach ($formElements as $idx => $elem) {
-            $name = $elem['attributes']['name'];
+            $name = $elem['name'];
+            if ($tableFieldDataTypes[$name] == Types::DATETIME_MUTABLE) {$tableFieldDataTypes[$name] = 'date_format:Y-m-d H:i:s';}
+            if ($tableFieldDataTypes[$name] == Types::TEXT) {$tableFieldDataTypes[$name] = Types::STRING;}
+            
             // for integer
             if ($tableFieldDataTypes[$name] == Types::INTEGER) {
                 $translations[$name. "." . Types::INTEGER] = __("lumenDemo::translations.tr_melis_lumen_notification_not_int");
