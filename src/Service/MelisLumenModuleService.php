@@ -519,7 +519,7 @@ class MelisLumenModuleService
             // for edit tool
             $data = str_replace(['[edit-button-event]'],$this->editButtonEventJs(),$data);
             // for add event
-            $data = str_replace(['[add-button-event]'], $this->addButtonEventJs(),$data);
+            $data = str_replace(['[save-button-event]'], $this->addButtonEventJs(),$data);
             $data = str_replace('[form_name]',strtolower($this->getModuleName()) . "form",$data);
             // create a file
             $this->createFile($pathToCreate  . DIRECTORY_SEPARATOR . $file['fileName'],$data);
