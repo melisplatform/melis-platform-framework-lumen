@@ -383,6 +383,9 @@ class MelisLumenModuleService
                 $phpTag = "<?php \n";
             }
             $tmpView = str_replace('[?]', '?',$tmpView);
+            if (!$this->toolIsTab()){
+                $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ " . strtolower($this->getModuleName()) ."  }}Modal\"");
+            }
             // replace module_name in file
             $data =  $phpTag . str_replace('[module_name]',$this->getModuleName(),$tmpView);
             // create a file
@@ -518,31 +521,60 @@ class MelisLumenModuleService
             $data = str_replace('[module_name]',strtolower($this->getModuleName()),$tmpFile);
             // for edit tool
             $data = str_replace(['[edit-button-event]'],$this->editButtonEventJs(),$data);
+            // for save event
+            $data = str_replace(['[save-button-event]'], $this->saveButtonEventJs(),$data);
+            // tab save callback function
+            $data = str_replace('[tab_save_callback]', $this->tabSaveCallbackJs(), $data);
             // for add event
-            $data = str_replace(['[save-button-event]'], $this->addButtonEventJs(),$data);
+            $data = str_replace('[add-button-event]', $this->addButtonEventJs(), $data);
+            // formanem
             $data = str_replace('[form_name]',strtolower($this->getModuleName()) . "form",$data);
             // create a file
             $this->createFile($pathToCreate  . DIRECTORY_SEPARATOR . $file['fileName'],$data);
         }
     }
+    private function addButtonEventJs()
+    {
+        $moduleName = strtolower($this->getModuleName());
+        $script = "$(\"body\").on('click','.add-" . $moduleName . "', function(){
+            // append loader
+            $(\".modal-dynamic-content\").html(" . $moduleName . "Tool.tempLoader);
+            // get the configured form
+            " . $moduleName . "Tool.getToolModal(function(data){
+                $(\".modal-dynamic-content\").html(data);
+            });
+        });";
+        if ($this->toolIsTab()) {
+            $script =
+                "\$body.on(\"click\", \".add-$moduleName\", function(){
+        var tabTitle = translations.tr_" . $moduleName . "_common_add;
+     
+        // Opening tab form for add/update
+        melisHelper.tabOpen(tabTitle, 'fa fa-puzzle-piece', '0_id_" . $moduleName . "_tool_form', '" . $moduleName . "_tool_form', { id: 0}, 'id_" . $moduleName . "_tool');
+    });";
+        }
 
+        return $script;
+    }
     private function editButtonEventJs()
     {
         $moduleName = strtolower($this->getModuleName());
-        $script = "$(\"body\").on('click',\".edit-$moduleName\", function(){
+        $script =
+            "$(\"body\").on('click',\".edit-$moduleName\", function(){
                 var id = $(this).parent().parent().attr('id');
                 // append loader
-                $(\".modal-dynamic-content\").html(" .$moduleName ."Tool.tempLoader);
+                $(\".modal-dynamic-content\").html(" . $moduleName . "Tool.tempLoader);
                 // get the configured form
-                " .$moduleName ."Tool.getToolModal(function(data){
+                " . $moduleName . "Tool.getToolModal(function(data){
                     $(\".modal-dynamic-content\").html(data);
                 },id);
             });";
 
         // override
         if ($this->toolIsTab()) {
-            $script = " \$body.on(\"click\", \".edit-$moduleName\", function(){
-        var tabTitle = translations.common_add;
+            $script =
+                "\$body.on(\"click\", \".edit-$moduleName\", function(){
+        var tabTitle = translations.tr_" . $moduleName . "_title;
          var id = $(this).parent().parent().attr('id');
         if (typeof id !== \"undefined\"){
             tabTitle = translations.tr_laravel_title+\" / \"+id;
@@ -556,7 +588,7 @@ class MelisLumenModuleService
         return $script;
 
     }
-    private function addButtonEventJs()
+    private function saveButtonEventJs()
     {
         $modulename = strtolower($this->getModuleName());
         $script = "$(\"body\").on('click', '#save-$modulename', function(){
@@ -568,6 +600,20 @@ class MelisLumenModuleService
             var targetForm = $(this).data('target');
             $(\"#\" + targetForm + \" form\").submit();
         });";
+        }
+
+        return $script;
+    }
+    private function tabSaveCallbackJs()
+    {
+        $script = null;
+        if ($this->toolIsTab()) {
+            $moduleName = strtolower($this->getModuleName());
+            $script = "// Close add/update tab zone
+                $(\"a[href$='0_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
+
+                // Open new created/updated entry
+                melisHelper.tabOpen(translations.tr_" . $moduleName . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $moduleName . "_tool_form', '" . $moduleName . "_tool_form', {id: data.id}, 'id_" . $moduleName . "_tool');";
         }
 
         return $script;

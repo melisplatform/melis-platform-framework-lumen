@@ -158,7 +158,8 @@ class IndexController extends BaseController
             'errors' => $errors,
             'success' => $success,
             'textMessage' => $message,
-            'textTitle' => $title
+            'textTitle' => $title,
+            'id'        => $id
         ];
 
     }

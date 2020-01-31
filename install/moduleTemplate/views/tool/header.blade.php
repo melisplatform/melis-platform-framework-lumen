@@ -8,7 +8,7 @@
             <p>{{ __('[module_name]::messages.tr_' . $smToolname . '_desc') }} </p>
         </div>
         <div class="me-hl col-xs-12 col-md-3" align="right">
-            <a  data-toggle="modal" data-target="#{{ $smToolname  }}Modal"  class="btn btn-success add-{{ $smToolname }}" title="{{ __('[module_name]::messages.tr_' . $smToolname . '_common_add') }}">
+            <a  [tool_type]  class="btn btn-success add-{{ $smToolname }}" title="{{ __('[module_name]::messages.tr_' . $smToolname . '_common_add') }}">
                 <i class="fa fa-plus"></i>
                 {{ __('[module_name]::messages.tr_' . $smToolname . '_common_add') }}
             </a>

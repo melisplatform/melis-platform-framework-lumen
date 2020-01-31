@@ -53,7 +53,7 @@ window.[module_name]Tool = {
         }).done(function(data){
             if(data.success) {
                 if(typeof callback !== "undefined" && typeof callback === "function") {
-                    callback();
+                    callback(data);
                 }
                melisHelper.melisOkNotification(data.textTitle, data.textMessage);
             }
@@ -63,7 +63,7 @@ window.[module_name]Tool = {
                 melisHelper.melisKoNotification(data.textTitle, data.textMessage, data.errors, 0);
                 melisCoreTool.highlightErrors(data.success, data.errors, "[form_name]");
                 if(typeof callbackFail !== "undefined" && typeof callbackFail === "function") {
-                    callbackFail();
+                    callbackFail(data);
                 }
             }
             melisCore.flashMessenger();
@@ -100,6 +100,7 @@ window.[module_name]Tool = {
 };
 //if (typeof [module_name]Tool == undefined) {
     (function ($){
+        [add-button-event]
         [edit-button-event]
         [save-button-event]
         /*
@@ -110,14 +111,14 @@ window.[module_name]Tool = {
             var saveBtn = $("#btn-save-lumen-album");
             saveBtn.attr('disabled','disabled');
             var formData = $(this).serializeArray();
-            [module_name]Tool.saveAlbumData(formData,function(){
+            [module_name]Tool.saveAlbumData(formData,function(data){
                 $(".lumen-modal-close").trigger('click');
                 // reload the tool
                 [module_name]Tool.refreshTable();
+                [tab_save_callback]
             },function(){
                 saveBtn.removeAttr('disabled')
             });
-
         });
         /*
          * delete an album
@@ -147,14 +148,6 @@ window.[module_name]Tool = {
         $("body").on('click',".melis-lumen-refresh",function(){
             [module_name]Tool.refreshTable();
         })
-        $("body").on('click','.add-[module_name]', function(){
-            // append loader
-            $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
-            // get the configured form
-            [module_name]Tool.getToolModal(function(data){
-                $(".modal-dynamic-content").html(data);
-            });
-        });
         /*
          * cancel ajax request when canceled
          */
