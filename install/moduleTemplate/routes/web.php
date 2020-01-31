@@ -16,7 +16,7 @@ Route::get('/melis/[module_name]/tool',  IndexController::class ."@renderIndex")
 Route::post('/melis/[module_name]/get-table-data', IndexController::class ."@getTableData");
 // get modal
 // get album form
-Route::get('/melis/[module_name]/get-tool-modal', IndexController::class . "@toolModalContent");
+Route::get('/melis/[module_name]/form/{id}', IndexController::class . "@toolModalContent");
 // save album data
 Route::post('/melis/[module_name]/save' , IndexController::class . "@save" );
 // delete album

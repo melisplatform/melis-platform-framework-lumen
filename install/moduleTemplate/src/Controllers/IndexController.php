@@ -86,9 +86,8 @@ class IndexController extends BaseController
     /**
     * @return \Illuminate\View\View
     */
-    public function toolModalContent()
+    public function toolModalContent($id)
     {
-        $id = app('request')->request->get('id') ?? null;
         $data = [];
         if ($id) {
             $data = $this->toolService->getDataById($id)->toArray();

@@ -15,7 +15,7 @@ window.[module_name]Tool = {
         var data = "";
         [module_name]Tool.currentRequest =  $.ajax({
             type: 'GET',
-            url: '/melis/[module_name]/get-tool-modal',
+            url: '/melis/[module_name]/form/' + id,
             data : {
                 id : id
             },
@@ -100,18 +100,8 @@ window.[module_name]Tool = {
 };
 //if (typeof [module_name]Tool == undefined) {
     (function ($){
-        $("body").on('click',".edit-[module_name]", function(){
-            var id = $(this).parent().parent().attr('id');
-            // append loader
-            $(".modal-dynamic-content").html([module_name]Tool.tempLoader);
-            // get the configured form
-            [module_name]Tool.getToolModal(function(data){
-                $(".modal-dynamic-content").html(data);
-            },id);
-        });
-        $("body").on('click', '#save-[module_name]', function(){
-            $("#[module_name]form").submit();
-        });
+        [edit-button-event]
+        [save-button-event]
         /*
          * submit form
          */

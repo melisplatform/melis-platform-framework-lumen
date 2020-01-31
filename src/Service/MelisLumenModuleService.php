@@ -197,7 +197,6 @@ class MelisLumenModuleService
      */
     public function add($newClass)
     {
-
         // get service provider file path
         $serviceProviders = require $this->getServiceProvidersPath();
         // check if class exists
@@ -241,6 +240,12 @@ class MelisLumenModuleService
     }
     public function createModule()
     {
+        /*
+         * return if the tool creator is not for framework and lumen
+         */
+        if (!$this->getToolCreatorSession()['step1']['tcf-create-framework-tool'] && $this->getToolCreatorSession()['step1']['tcf-tool-framework'] != "lumen")
+            return;
+
         // create module directory
         $this->createModuleDir();
         // construct other folders
@@ -352,6 +357,10 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."IndexController.php",$data);
     }
+
+    /**
+     * create view files for the lumen module
+     */
     private function createViewFiles()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "views" . DIRECTORY_SEPARATOR . "tool";
@@ -361,6 +370,13 @@ class MelisLumenModuleService
         }
         // get the view templates
         foreach (self::TEMPLATE_VIEWS as $idx => $val) {
+            // override the modal content if the tool is a tabulation
+            if ($idx == "modal-content") {
+                if ($this->toolIsTab()) {
+                    $val['html'] = __DIR__  . "/../../install/moduleTemplate/views/tool/tabulation-content.blade.php";
+                }
+            }
+            // get html content
             $tmpView = file_get_contents($val['html']);
             $phpTag = "";
             if (isset($val['phpTag'])) {
@@ -373,6 +389,10 @@ class MelisLumenModuleService
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."$idx.blade.php",$data);
         }
     }
+
+    /**
+     * create translation files for lumen module
+     */
     private function createTranslationFiles()
     {
         $locales = $this->getMelisLanguages();
@@ -424,10 +444,19 @@ class MelisLumenModuleService
             $partialContent = str_replace('[tool_columns]',$columns,$tmpConfig);
             $partialContent = str_replace('[tool_searchables]',$searchables,$partialContent);
             $partialContent = str_replace('[elements]',$formFields ,$partialContent);
+            // tooltype to open
+            $partialContent = str_replace('[tool_type]',$this->toolType(),$partialContent);
             $data =  "<?php \n" . str_replace('[module_name]', $this->getModuleName(),$partialContent);
             // create a file
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $fileName. ".config.php",$data);
         }
+    }
+    private function toolType()
+    {
+        if (!$this->toolIsTab()) {
+            return "data-toggle=\"modal\" data-target=\"#" . strtolower($this->getModuleName())  . "Modal\"";
+        }
+        return null;
     }
     private function createModelFile()
     {
@@ -487,12 +516,62 @@ class MelisLumenModuleService
             $tmpFile = file_get_contents($file['file']);
             // replace module_name in file
             $data = str_replace('[module_name]',strtolower($this->getModuleName()),$tmpFile);
-            $data = str_replace('[form_name]',"test",$data);
+            // for edit tool
+            $data = str_replace(['[edit-button-event]'],$this->editButtonEventJs(),$data);
+            // for add event
+            $data = str_replace(['[add-button-event]'], $this->addButtonEventJs(),$data);
+            $data = str_replace('[form_name]',strtolower($this->getModuleName()) . "form",$data);
             // create a file
             $this->createFile($pathToCreate  . DIRECTORY_SEPARATOR . $file['fileName'],$data);
         }
     }
 
+    private function editButtonEventJs()
+    {
+        $moduleName = strtolower($this->getModuleName());
+        $script = "$(\"body\").on('click',\".edit-$moduleName\", function(){
+                var id = $(this).parent().parent().attr('id');
+                // append loader
+                $(\".modal-dynamic-content\").html(" .$moduleName ."Tool.tempLoader);
+                // get the configured form
+                " .$moduleName ."Tool.getToolModal(function(data){
+                    $(\".modal-dynamic-content\").html(data);
+                },id);
+            });";
+
+        // override
+        if ($this->toolIsTab()) {
+            $script = " \$body.on(\"click\", \".edit-$moduleName\", function(){
+        var tabTitle = translations.common_add;
+         var id = $(this).parent().parent().attr('id');
+        if (typeof id !== \"undefined\"){
+            tabTitle = translations.tr_laravel_title+\" / \"+id;
+        } else { id = 0; }
+
+        // Opening tab form for add/update
+        melisHelper.tabOpen(tabTitle, 'fa fa-puzzle-piece', id+'_id_" . $moduleName . "_tool_form', '" . $moduleName ."_tool_form', {id: id}, 'id_" . $moduleName . "_tool');
+    });";
+        }
+
+        return $script;
+
+    }
+    private function addButtonEventJs()
+    {
+        $modulename = strtolower($this->getModuleName());
+        $script = "$(\"body\").on('click', '#save-$modulename', function(){
+            $(\"#$modulename form\").submit();
+        });";
+        // override script
+        if ($this->toolIsTab()) {
+            $script = "$(\"body\").on('click', '#save-$modulename', function(){
+            var targetForm = $(this).data('target');
+            $(\"#\" + targetForm + \" form\").submit();
+        });";
+        }
+
+        return $script;
+    }
     private static function p($text)
     {
         echo "<pre>";
@@ -784,6 +863,13 @@ class MelisLumenModuleService
         // make a validator for the request parameters
         return Validator::make($requestParams,$fields ,$messages);
     }
-
-
+    
+    public function toolIsTab()
+    {
+         return ($this->getToolCreatorSession()['step1']['tcf-tool-edit-type'] == 'tab') ? true : false ;
+    }
+    public function toolIsDb()
+    {
+        return ($this->getToolCreatorSession()['step1']['tct-tool-type'] == 'db') ? true : false ;
+    }
 }
