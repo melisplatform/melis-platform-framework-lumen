@@ -875,22 +875,37 @@ class MelisLumenModuleService
 
     public function getMelisCommonTranslations()
     {
+        $moduleName = strtolower($this->getModuleName());
         $commonTranslations = [];
         $commonTranslations['en_EN'] = [
-            'tr_' . strtolower($this->getModuleName()) . '_common_add' => 'Add',
-            'tr_' . strtolower($this->getModuleName()) . '_common_edit' => 'Edit',
-            'tr_' . strtolower($this->getModuleName()) . '_common_delete' => 'Delete',
-            'tr_' . strtolower($this->getModuleName()) . '_common_save' => 'Save',
-            'tr_' . strtolower($this->getModuleName()) . '_common_close' => 'Close',
-            'tr_' . strtolower($this->getModuleName()) . '_common_refresh' => 'Refresh',
+            'tr_' . $moduleName . '_common_add' => 'Add',
+            'tr_' . $moduleName . '_common_edit' => 'Edit',
+            'tr_' . $moduleName . '_common_delete' => 'Delete',
+            'tr_' . $moduleName . '_common_save' => 'Save',
+            'tr_' . $moduleName . '_common_close' => 'Close',
+            'tr_' . $moduleName . '_common_refresh' => 'Refresh',
+            'tr_' . $moduleName . '_common_delete_item' => 'Delete item',
+            'tr_' . $moduleName . '_common_delete_message' => 'Are you sure you want to delete this item?',
+            'tr_' . $moduleName . '_delete_item_success' => 'Item deleted successfully',
+            'tr_' . $moduleName . '_save_item_success' => 'Item created successfully',
+            'tr_' . $moduleName . '_update_item_success' => 'Item saved successfully',
+            'tr_' . $moduleName . '_add_item_failed' => 'Unable to save',
+            'tr_' . $moduleName . '_update_failed' => 'Unable to update',
         ];
         $commonTranslations['fr_FR'] = [
-            'tr_' . strtolower($this->getModuleName()) . '_common_add' => 'Ajouter',
-            'tr_' . strtolower($this->getModuleName()) . '_common_edit' => 'Editer',
-            'tr_' . strtolower($this->getModuleName()) . '_common_delete' => 'Supprimer',
-            'tr_' . strtolower($this->getModuleName()) . '_common_save' => 'Sauvegarder',
-            'tr_' . strtolower($this->getModuleName()) . '_common_close' => 'Annuler',
-            'tr_' . strtolower($this->getModuleName()) . '_common_refresh' => 'Rafraichir',
+            'tr_' . $moduleName . '_common_add' => 'Ajouter',
+            'tr_' . $moduleName . '_common_edit' => 'Editer',
+            'tr_' . $moduleName . '_common_delete' => 'Supprimer',
+            'tr_' . $moduleName . '_common_save' => 'Sauvegarder',
+            'tr_' . $moduleName . '_common_close' => 'Annuler',
+            'tr_' . $moduleName . '_common_refresh' => 'Rafraichir',
+            'tr_' . $moduleName . '_common_delete_item' => 'Supprimer l\'élément',
+            'tr_' . $moduleName . '_common_delete_message' => 'Etes-vous sûr de vouloir supprimer cet élément?',
+            'tr_' . $moduleName . '_delete_item_success' => 'Elément supprimé avec succès',
+            'tr_' . $moduleName . '_save_item_success' => 'Elément enregistré avec succès',
+            'tr_' . $moduleName . '_update_item_success' => 'Elément enregistré avec succès',
+            'tr_' . $moduleName . '_add_item_failed' => 'Impossible d\'enregistrer',
+            'tr_' . $moduleName . '_update_failed' => 'Impossible de mettre',
         ];
         // for other languages that are not yet created
         foreach ($this->getMelisLanguages() as $idx => $val) {

@@ -131,8 +131,8 @@ window.[module_name]Tool = {
             melisCoreTool.confirm(
                 translations.tr_meliscore_common_yes,
                 translations.tr_meliscore_common_no,
-                translations.tr_melis_lumen_notification_title_delete,
-                translations.tr_melis_lumen_notification_message_delete_message,
+                translations.tr_[module_name]_common_delete_item,
+                translations.tr_[module_name]_common_delete_message,
                 function () {
                     // append loader
                     [module_name]Tool.deleteAlbum(id,function(){

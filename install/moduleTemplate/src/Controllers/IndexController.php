@@ -106,7 +106,7 @@ class IndexController extends BaseController
         // success status
         $success = false;
         // default message
-        $message = "tr_melis_lumen_notification_message_save_ko";
+        $message = "tr_" . strtolower('[module_name]') ."_add_item_failed";
         // default title
         $title = "tr_" . strtolower('[module_name]') ."_title";
         // get all request parameters
@@ -139,12 +139,12 @@ class IndexController extends BaseController
                 // update album
                 $this->toolService->save($requestParams,$id);
                 // set message
-                $message = "tr_melis_lumen_notification_message_upate_ok";
+                $message = "tr_" . strtolower('[module_name]') ."_update_item_success"
             } else {
-                // save album data
+                // save date
                 $id = $this->toolService->save($requestParams)['id'];
                 // set message
-                $message = "tr_melis_lumen_notification_message_save_ok";
+                $message = "tr_" . strtolower('[module_name]') ."_save_item_success";
             }
         }
 
