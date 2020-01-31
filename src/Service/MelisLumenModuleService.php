@@ -608,7 +608,7 @@ class MelisLumenModuleService
         if ($this->toolIsTab()) {
             $moduleName = strtolower($this->getModuleName());
             $script = "// Close add/update tab zone
-                $(\"a[href$=\" + data.id + \"_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
+                $(\"a[href$='\" + data.id + \"_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
 
                 // Open new created/updated entry
                 melisHelper.tabOpen(translations.tr_" . $moduleName . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $moduleName . "_tool_form', '" . $moduleName . "_tool_form', {id: data.id}, 'id_" . $moduleName . "_tool');";
