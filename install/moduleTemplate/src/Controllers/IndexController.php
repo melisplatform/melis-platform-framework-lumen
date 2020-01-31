@@ -139,7 +139,7 @@ class IndexController extends BaseController
                 // update album
                 $this->toolService->save($requestParams,$id);
                 // set message
-                $message = "tr_" . strtolower('[module_name]') ."_update_item_success"
+                $message = "tr_" . strtolower('[module_name]') ."_update_item_success";
             } else {
                 // save date
                 $id = $this->toolService->save($requestParams)['id'];
