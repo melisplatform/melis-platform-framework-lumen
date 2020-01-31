@@ -167,8 +167,10 @@ class IndexController extends BaseController
     {
         $newTranslations = [];
         foreach ($errorMessages as $key => $trans) {
-            $label = __("[module_name]::messages.tr_" .strtolower('[module_name]') . "_$key");
-            $newTranslations[$label] = $trans;
+            $newTranslations[$key] = [
+                'message' => $trans,
+                'label'   => __("[module_name]::messages.tr_" .strtolower('[module_name]') . "_$key")
+            ];
         }
 
         return $newTranslations;

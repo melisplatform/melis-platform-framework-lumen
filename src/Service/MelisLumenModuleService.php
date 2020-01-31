@@ -574,14 +574,12 @@ class MelisLumenModuleService
         if ($this->toolIsTab()) {
             $script =
                 "\$body.on(\"click\", \".edit-$moduleName\", function(){
-        var tabTitle = translations.tr_" . $moduleName . "_title;
-         var id = $(this).parent().parent().attr('id');
-        if (typeof id !== \"undefined\"){
-            tabTitle = translations.tr_laravel_title+\" / \"+id;
-        } else { id = 0; }
+           
+           var id = $(this).parent().parent().attr('id');
+        var tabTitle = translations.tr_" . $moduleName . "_title + \" / \" +id;
 
         // Opening tab form for add/update
-        melisHelper.tabOpen(tabTitle, 'fa fa-puzzle-piece', id+'_id_" . $moduleName . "_tool_form', '" . $moduleName ."_tool_form', {id: id}, 'id_" . $moduleName . "_tool');
+        melisHelper.tabOpen(tabTitle, 'fa fa-puzzle-piece', id+'_id_" . $moduleName . "_tool_form', '" . $moduleName . "_tool_form', {id: id}, 'id_" . $moduleName . "_tool');
     });";
         }
 
@@ -610,7 +608,7 @@ class MelisLumenModuleService
         if ($this->toolIsTab()) {
             $moduleName = strtolower($this->getModuleName());
             $script = "// Close add/update tab zone
-                $(\"a[href$='0_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
+                $(\"a[href$=\" + data.id + \"_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
 
                 // Open new created/updated entry
                 melisHelper.tabOpen(translations.tr_" . $moduleName . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $moduleName . "_tool_form', '" . $moduleName . "_tool_form', {id: data.id}, 'id_" . $moduleName . "_tool');";
