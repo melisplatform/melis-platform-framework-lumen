@@ -65,11 +65,14 @@ class IndexController extends BaseController
             // organized data
             $c = 0;
             foreach($data['data'] as $datum){
-                foreach ($this->toolService->getTableFields() as $field) {
-                    if ($field == $parimaryKey) {
-                        $tableData[$c]['DT_RowId'] = $datum->[primary_key];
+                $toolTableColumns = array_keys($tableConfig['table']['columns']);
+                foreach ($toolTableColumns as $field) {
+                    if ($field == 'DT_RowId') {
+                        $tableData[$c]['DT_RowId'] = $datum['[primary_key]'];
                     } else {
-                        $tableData[$c][$field] = $datum->$field;
+                        if ($field != 'DT_RowId') {
+                            $tableData[$c][$field] = $datum[$field];
+                        }
                     }
                 }
                 $c++;

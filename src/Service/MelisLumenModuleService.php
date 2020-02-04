@@ -97,12 +97,17 @@ class MelisLumenModuleService
      */
     private $tablePrimaryKey;
     /**
+     * @var
+     */
+    private $secondaryTablePrimarykey;
+    /**
      * MelisLumenModuleService constructor.
      */
     public function __construct()
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
+
         if (! empty($this->toolCreatorSession)) {
             // set module name
             $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
@@ -110,6 +115,8 @@ class MelisLumenModuleService
             $this->setModelname(str_replace('_',null,ucwords($this->getTableName(),'_')) . "Table");
             // set table primary key
             $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
+            // set secondary primary key
+            $this->secondaryTablePrimarykey = DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getSecondaryTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name;
         } else {
             die("Run first melis tool creator with an option of create a tool with framework");
         }
@@ -484,6 +491,10 @@ class MelisLumenModuleService
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $modelName . ".php",$data);
 
     }
+    private function hasSecondaryTable()
+    {
+       return $this->getToolCreatorSession()['step3']['tcf-db-table-has-language'];
+    }
     public function createServiceFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Service";
@@ -492,21 +503,58 @@ class MelisLumenModuleService
             mkdir($pathToCreate,077);
         }
         // get the template controller
-        $tmpModel = file_get_contents(self::TEMPLATE_SERVICE);
+        $tmpFile = file_get_contents(self::TEMPLATE_SERVICE);
         // replace mode_name
-        $tmpModel = str_replace('[model_name]',$this->getModelName(), $tmpModel);
+        $tmpFile = str_replace('[model_name]',$this->getModelName(), $tmpFile);
         // set primary key
-        $tmpModel = str_replace('[primary_key]',$this->getTablePrimaryKey(), $tmpModel);
+        $tmpFile = str_replace('[primary_key]',$this->getTablePrimaryKey(), $tmpFile);
         // set service template name
-        $tmpModel = str_replace('[template_service_name]',$this->getModuleName() . "Service", $tmpModel);
+        $tmpFile = str_replace('[template_service_name]',$this->getModuleName() . "Service", $tmpFile);
         // replace table_name
-        $tmpModel = str_replace('[table_name]',$this->getTableName(), $tmpModel);
+        $tmpFile = str_replace('[table_name]',$this->getTableName(), $tmpFile);
+        $tmpFile  = str_replace('[first_table]',$this->getTableName(), $tmpFile);
+        $tmpFile  = str_replace('[second_table_data]',$this->joinSecondTableData(), $tmpFile);
+
         // replace module_name in file
-        $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpModel);
+        $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpFile);
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $this->getModuleName() . "Service.php",$data);
     }
+    private function joinSecondTableData()
+    {
+        $string = null;
+        if ($this->hasSecondaryTable()) {
+            $string = "\$secondTableFields = \$this->getTableFields('" . $this->getSecondaryTableName() ."');
+            foreach (\$data as \$idx => \$val) {
+                \$secondTableData = (array) DB::connection('melis')->table('" . $this->getSecondaryTableName() ."')->where('" . $this->getSecondaryTableForeignKey() ."',\"=\",\$val['" . $this->getTablePrimaryKey() ."'])->get()->first();
+                if (empty(\$secondTableData)) {
+                    foreach (\$secondTableFields as \$field2) {
+                        if (\$field2 != \"" . $this->getTablePrimaryKey() . "\") {
+                            \$data[\$idx][\$field2] = \"\";
+                        }
+                    }
+                }else {
+                    foreach (\$secondTableData as \$field => \$value) {
+                        \$data[\$idx][\$field] = \$value;
+                    }
+                }
+            }";
+        }
 
+        return $string;
+    }
+    private function getSecondaryTableName()
+    {
+        return $this->getToolCreatorSession()['step3']['tcf-db-table-language-tbl'];
+    }
+    private  function getSecondaryTableForeignKey()
+    {
+        return $this->getToolCreatorSession()['step3']['tcf-db-table-language-pri-fk'] ?? null;
+    }
+    private function getTableLanguageForiegnKey()
+    {
+        return $this->getToolCreatorSession()['step3']['tcf-db-table-language-lang-fk'] ?? null;
+    }
     private function createAssetsFile()
     {
         foreach (self::ASSETS as $idx => $file) {
@@ -650,7 +698,7 @@ class MelisLumenModuleService
             if (is_array($val)) {
                 $step6Translations[$i] = $val['pri_tbl'];
                 if (isset($val['lang_tbl'])) {
-                    $step6Translations[$i] = $val['lang_tbl'] ;
+                    $step6Translations[$i] = array_merge_recursive($step6Translations[$i], $val['lang_tbl']);
                 }
             }
         }
@@ -664,6 +712,7 @@ class MelisLumenModuleService
             foreach ($step6Translations as $locale => $val2) {
                 foreach ($val2 as $dbField => $fieldVal) {
                     $field = str_replace('tcinputdesc','tooltip',$dbField);
+                    $field = str_replace('tclangtblcol_',null,$field);
                     if (empty($fieldVal)) {
                         // check for other translations
                         if ($coreLocale != $locale) {
@@ -742,6 +791,7 @@ class MelisLumenModuleService
             if ($val == $this->getTablePrimaryKey()) {
                 $mainId = "DT_RowId";
             } else {
+                $val = str_replace('tclangtblcol_', null,$val);
                 $mainId = $val;
             }
             $partialContent .= "\t\t\t'$mainId'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";

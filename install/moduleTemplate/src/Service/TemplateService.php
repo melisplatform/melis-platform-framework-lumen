@@ -6,6 +6,7 @@ use LumenModule\[module_name]\Http\Model\[model_name];
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Doctrine\DBAL\Types\Types;
+use Illuminate\Support\Facades\DB;
 
 class [template_service_name]
 {
@@ -45,9 +46,10 @@ class [template_service_name]
                 })
                 ->skip($start)
                 ->limit($limit)
-                ->orderBy($orderBy,$orderDir)
+                ->orderBy("[first_table]." . $orderBy,$orderDir)
                 ->get();
 
+            [second_table_data]
 
         }catch (\Exception $err) {
             // return error
@@ -176,12 +178,12 @@ class [template_service_name]
 
         return $fields;
     }
-    public function getTableFields()
+    public function getTableFields($tableName)
     {
         $con = Schema::connection('melis');
         $fields = [];
         // get table field data type fields
-        foreach ($con->getColumnListing($this->toolTable->getTable()) as $tblField) {
+        foreach ($con->getColumnListing($tableName) as $tblField) {
             $fields[] = $tblField;
         }
 
