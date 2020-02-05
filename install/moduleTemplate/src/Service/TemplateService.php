@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Doctrine\DBAL\Types\Types;
 use Illuminate\Support\Facades\DB;
+use MelisPlatformFrameworkLumen\Service\MelisPlatformToolService;
 
 class [template_service_name]
 {
@@ -14,10 +15,15 @@ class [template_service_name]
      * @var string
      */
     private $toolTable;
+    /**
+    * @var
+    */
+    private $platformToolService;
 
-    public function __construct([model_name] $toolModel)
+    public function __construct([model_name] $toolModel,  MelisPlatformToolService $platformToolService)
     {
         $this->toolTable = $toolModel;
+        $this->platformToolService = $platformToolService;
     }
 
     /**
@@ -188,5 +194,75 @@ class [template_service_name]
         }
 
         return $fields;
+    }
+    public function saveLanguageData($data)
+    {
+        $success = false;
+
+        try {
+
+            foreach ($data as $locale => $val) {
+                // check for existing data
+                $dbData = DB::connection('melis')->table('[second_table]')->select('*')
+                    ->whereRaw('[secondary_table_fk] = ' . $val['[secondary_table_fk]'] . ' AND [secondary_table_pk]= '. $val['[secondary_table_lang_fk]'])
+                    ->get()
+                    ->first();
+
+    //                // save if no data
+                if (empty($dbData)) {
+                    $success[] = DB::connection('melis')->table('[second_table]')->insert($val);
+                } else {
+                    unset($val['cnews_text_id']);
+                    // update if there is data
+                    $success[] = DB::connection('melis')->table('[second_table]')
+                        ->where('[secondary_table_fk]',"=",$dbData->[secondary_table_pk])
+                        ->update($val);
+                }
+
+            }
+        } catch(\Exception $err) {
+            throw new \Exception($err->getMessage());
+        }
+
+        return [
+            'success' => $success,
+
+        ];
+
+    }
+    public function getLanguageTableDataWithForm($field, $value)
+    {
+        // melis cms language table
+        $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
+        $cmsLangData = $cmsLang->fetchAll()->toArray();
+        $data = [];
+        $tmpData = [];
+        if (! empty($value)) {
+            $tmpData = DB::connection('melis')->table('[second_table]')->select('*')
+            ->whereRaw('' . $field . ' = ' . $value)
+            ->get()
+            ->toArray();
+        }
+
+        if (!empty($tmpData)) {
+            foreach($tmpData as $idx => $val) {
+                $val = (array) $val;
+                foreach ($cmsLangData as $i => $lang) {
+                    if ($val['[secondary_table_lang_fk]'] == $lang['lang_cms_id']) {
+                        $data["". $lang['lang_cms_locale']. ""] = [
+                            'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'],$val)
+                        ];
+                    }
+                }
+            }
+        } else {
+            foreach ($cmsLangData as $i => $lang) {
+                $data["". $lang['lang_cms_locale']. ""] = [
+                    'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'])
+                ];
+            }
+        }
+
+        return $data;
     }
 }

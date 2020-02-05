@@ -107,7 +107,6 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-
         if (! empty($this->toolCreatorSession)) {
             // set module name
             $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
@@ -126,6 +125,10 @@ class MelisLumenModuleService
     public function getTablePrimaryKey()
     {
         return $this->tablePrimaryKey;
+    }
+    public function getSecondaryTablePrimaryKey()
+    {
+        return $this->secondaryTablePrimarykey;
     }
     public function setTablePrimaryKey($primaryKey)
     {
@@ -358,7 +361,16 @@ class MelisLumenModuleService
         }
         // get the template controller
         $tmpController = file_get_contents(self::TEMPLATE_CONTROLLER);
-        $tmpController = str_replace('[primary_key]',$this->getTablePrimaryKey(),$tmpController);
+        $keyToReplace = [
+            '[primary_key]'          => $this->getTablePrimaryKey(),
+            '[secondary_table_pk]'   => $this->getSecondaryTablePrimaryKey(),
+            '[secondary_table_fk]'   => $this->getSecondaryTableForeignKey(),
+            '[second_table_lang_fk]' => $this->getTableLanguageForiegnKey(),
+        ];
+        foreach ($keyToReplace as $str => $replace) {
+            $tmpController = str_replace($str,$replace, $tmpController);
+        }
+
         // replace module_name in file
         $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpController);
         // create a file
@@ -391,8 +403,9 @@ class MelisLumenModuleService
             }
             $tmpView = str_replace('[?]', '?',$tmpView);
             if (!$this->toolIsTab()){
-                $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ " . strtolower($this->getModuleName()) ."  }}Modal\"");
+                $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ " . strtolower($this->getModuleName()) ."  }}Modal\"",$tmpView);
             }
+            $tmpView = str_replace('[tool_has_lang_table]',$this->hasSecondaryTable(),$tmpView);
             // replace module_name in file
             $data =  $phpTag . str_replace('[module_name]',$this->getModuleName(),$tmpView);
             // create a file
@@ -456,6 +469,8 @@ class MelisLumenModuleService
             $partialContent = str_replace('[elements]',$formFields ,$partialContent);
             // tooltype to open
             $partialContent = str_replace('[tool_type]',$this->toolType(),$partialContent);
+            // if the tool has a secondary table
+            $partialContent = str_replace('[language_form]',$this->constructLanguageForm(),$partialContent);
             $data =  "<?php \n" . str_replace('[module_name]', $this->getModuleName(),$partialContent);
             // create a file
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $fileName. ".config.php",$data);
@@ -504,16 +519,21 @@ class MelisLumenModuleService
         }
         // get the template controller
         $tmpFile = file_get_contents(self::TEMPLATE_SERVICE);
-        // replace mode_name
-        $tmpFile = str_replace('[model_name]',$this->getModelName(), $tmpFile);
-        // set primary key
-        $tmpFile = str_replace('[primary_key]',$this->getTablePrimaryKey(), $tmpFile);
-        // set service template name
-        $tmpFile = str_replace('[template_service_name]',$this->getModuleName() . "Service", $tmpFile);
-        // replace table_name
-        $tmpFile = str_replace('[table_name]',$this->getTableName(), $tmpFile);
-        $tmpFile  = str_replace('[first_table]',$this->getTableName(), $tmpFile);
-        $tmpFile  = str_replace('[second_table_data]',$this->joinSecondTableData(), $tmpFile);
+        $keyToReplace = [
+            '[model_name]'              => $this->getModelName(),
+            '[primary_key]'             => $this->getTablePrimaryKey(),
+            '[template_service_name]'   => $this->getModuleName() . "Service",
+            '[table_name]'              => $this->getTableName(),
+            '[second_table]'            => $this->getSecondaryTableName(),
+            '[first_table]'             => $this->getTableName(),
+            '[second_table_data]'       => $this->joinSecondTableData(),
+            '[secondary_table_pk]'      => $this->getSecondaryTablePrimaryKey(),
+            '[secondary_table_fk]'      => $this->getSecondaryTableForeignKey(),
+            '[secondary_table_lang_fk]' => $this->getTableLanguageForiegnKey(),
+        ];
+        foreach ($keyToReplace as $str => $replace) {
+            $tmpFile = str_replace($str,$replace, $tmpFile);
+        }
 
         // replace module_name in file
         $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpFile);
@@ -642,10 +662,30 @@ class MelisLumenModuleService
         });";
         // override script
         if ($this->toolIsTab()) {
-            $script = "$(\"body\").on('click', '#save-$modulename', function(){
-            var targetForm = $(this).data('target');
-            $(\"#\" + targetForm + \" form\").submit();
-        });";
+            $script = "
+            $(\"body\").on('click', '#save-$modulename', function(){
+                var targetForm = $(this).data('target');
+                var data = [];
+                var data2 = {};
+                data2.properties = $(\"#\" + activeTabId + \" #" . $modulename ."form\").serializeArray();
+                $(\"#\" + activeTabId + \" .$modulename-text-translation\").each(function(i,value){
+                    var elem = $(value);
+                    data.push({locale : elem.data('lang'), formData : elem.find(\"form\").serializeArray() });
+                });
+                data2.trans = data;
+                foofighterTool.saveAlbumData(data2,function(data){
+                    $(\".lumen-modal-close\").trigger('click');
+                    // reload the tool
+                    foofighterTool.refreshTable();
+                    // Close add/update tab zone
+                    $(\"a[href$='\" + data.id + \"_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
+    
+                    // Open new created/updated entry
+                    melisHelper.tabOpen(translations.tr_" . $modulename . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $modulename . "_tool_form', '" . $modulename . "_tool_form', {id: data.id}, 'id_" . $modulename . "_tool');
+                },function(){
+                    saveBtn.removeAttr('disabled')
+                });
+             });";
         }
 
         return $script;
@@ -810,13 +850,14 @@ class MelisLumenModuleService
 
         return  "[" . $partialContent . "],";
     }
-    public function getFormFields()
+    public function getFormFields($languageForm = false)
     {
         $string = "";
-        /*
-         * construct form fields
-         */
-        foreach ($this->getTableFields() as $field => $options) {
+        $fields = $this->getTableFields();
+        if ($languageForm) {
+            $fields = $this->getLanguageTableFields();
+        }
+        foreach ($fields as $field => $options) {
             switch ($options['type']) {
                 case "File":
         $string .=
@@ -831,7 +872,7 @@ class MelisLumenModuleService
                         'buttonText' => 'Choose',
                      ]
                 ],
-                'attributes' => [
+                'attributes' => [   
                     'required'   => '" . (isset($options['required']) ? "required" : null) . "',
                     'class'   => 'form-control',
                 ],
@@ -891,31 +932,98 @@ class MelisLumenModuleService
         $fieldTypes   = $this->getToolCreatorSession()['step5']['tcf-db-table-col-type'];
         // editable columns
         foreach ($editableCols as $idx => $field) {
-            $type = $fieldTypes[$idx];
-            // put requried properties of an element
-            $formFields[$field] = [
-                'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
-                'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
-                'class'    => $field,
-                'type'     => $type
-            ];
-            // check for id make it hidden
-            if ($field == $this->getTablePrimaryKey()) {
-                $formFields[$field]['type'] = "hidden";
-            } 
-            // make columns editable except for table primary key 
-            if ($field != $this->getTablePrimaryKey()) {
-                $formFields[$field]['editable'] = true;
+            if (!preg_match('/(tclangtblcol_)/',$field)) {
+                $type = $fieldTypes[$idx];
+                // put requried properties of an element
+                $formFields[$field] = [
+                    'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
+                    'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
+                    'class'    => $field,
+                    'type'     => $type
+                ];
+                // check for id make it hidden
+                if ($field == $this->getTablePrimaryKey()) {
+                    $formFields[$field]['type'] = "hidden";
+                }
+                // make columns editable except for table primary key
+                if ($field != $this->getTablePrimaryKey()) {
+                    $formFields[$field]['editable'] = true;
+                }
             }
         }
+
         // required columns
         foreach ($requiredCols as $idx => $field) {
-            if ($field != $this->getTablePrimaryKey()) {
+            if ($field != $this->getTablePrimaryKey() && !preg_match('/(tclangtblcol_)/',$field)) {
                  $formFields[$field]['required'] = true;
             }
         }
         
         
+        return $formFields;
+    }
+    public function constructLanguageForm()
+    {
+        $form = null;
+        if ($this->hasSecondaryTable()) {
+            $moduleName = strtolower($this->getModelName());
+            $form = "
+    'language_form' => [
+            'form' => [
+                'attributes' => [
+                    'class' => '" . $moduleName ."LanguageForm',
+                    'method' => 'POST',
+                    'name' => '" . $moduleName ."LanguageForm',
+                ],
+                'elements' => [
+                    ". $this->getFormFields(true) . "
+                ]
+            ]
+        ],";
+        }
+
+        return $form;
+    }
+    private function getLanguageTableFields()
+    {
+        $formFields = [];
+        // get editable columns
+        $editableCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-editable'];
+        // get required columns
+        $requiredCols = $this->getToolCreatorSession()['step5']['tcf-db-table-col-required'];
+        // input types
+        $fieldTypes   = $this->getToolCreatorSession()['step5']['tcf-db-table-col-type'];
+        // editable columns
+        foreach ($editableCols as $idx => $field) {
+            if (preg_match('/(tclangtblcol_)/',$field)) {
+                $field = str_replace('tclangtblcol_',null,$field);
+                $type = $fieldTypes[$idx];
+                // put requried properties of an element
+                $formFields[$field] = [
+                    'label'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '\')',
+                    'tooltip'    => '__(\'' . $this->getModuleName() . '::messages.tr_' . strtolower($this->getModuleName()) . '_' . $field . '_tooltip\')',
+                    'class'    => $field,
+                    'type'     => $type
+                ];
+                // check for id make it hidden
+                if ($field == $this->getSecondaryTableForeignKey() || $field == $this->getTableLanguageForiegnKey() || $field == $this->getSecondaryTablePrimaryKey()) {
+                    $formFields[$field]['type'] = "hidden";
+                }
+                // make columns editable except for table primary key
+                if ($field != $this->getSecondaryTablePrimaryKey()) {
+                    $formFields[$field]['editable'] = true;
+                }
+            }
+        }
+
+        // required columns
+        foreach ($requiredCols as $idx => $field) {
+            if ($field != $this->getTablePrimaryKey() && preg_match('/(tclangtblcol_)/',$field)) {
+                $field = str_replace('tclangtblcol_',null,$field);
+                $formFields[$field]['required'] = true;
+            }
+        }
+
         return $formFields;
     }
     public function getTableName()

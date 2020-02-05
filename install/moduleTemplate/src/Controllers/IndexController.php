@@ -95,10 +95,12 @@ class IndexController extends BaseController
         if ($id) {
             $data = $this->toolService->getDataById($id)->toArray();
         }
-
+        $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
         return view("$this->viewNamespace::tool/modal-content",[
             'form' => $this->melisToolService->createDynamicForm(Config::get('[module_name]')['form_config'],$data),
-             'id' => $id
+            'langForm' => $this->toolService->getLanguageTableDataWithForm('[secondary_table_fk]',$data['[primary_key]'] ?? null),
+            'langs' => $cmsLang->fetchAll()->toArray(),
+            'id' => $id
         ]);
 
     }
@@ -218,5 +220,39 @@ class IndexController extends BaseController
             'textMessage' => $message,
             'textTitle' => $title
         ];
+    }
+    private function constructRequestParams($requestparams)
+    {
+        if (empty($requestparams)) {
+            throw new \Exception("Request paramaters empty");
+        }
+        $postParams = [];
+
+        foreach ($requestparams as $i => $val) {
+            $postParams[$val['name']] = $val['value'];
+        }
+
+        return $postParams;
+    }
+    private function constructTransRequestParams($requestparams)
+    {
+        if (empty($requestparams)) {
+            throw new \Exception("Request paramaters empty");
+        }
+        $postParams = [];
+        /** @var MelisCmsLangTable $cmsLang */
+        $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
+        foreach ($requestparams as $i => $val) {
+            $postParams[$val['locale']] = [];
+            foreach ($val['formData'] as $ii => $val2) {
+                if ($val2['name'] == '[second_table_lang_fk]') {
+                    $val2['value'] = $cmsLang->getEntryByField('lang_cms_locale',$val['locale'])->current()->lang_cms_id;
+                }
+                $postParams[$val['locale']]["$val2[name]"] = $val2['value'];
+            }
+
+        }
+
+        return $postParams;
     }
 }

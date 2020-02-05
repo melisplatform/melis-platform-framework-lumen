@@ -11,5 +11,6 @@ return [
         'elements' => [
             [elements]
         ],
-    ]
+    ],
+    [language_form]
 ];
