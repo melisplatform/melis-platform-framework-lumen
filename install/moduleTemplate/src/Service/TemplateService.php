@@ -154,23 +154,26 @@ class [template_service_name]
                 $postData[array_values($fieldDiff)[0]] = false;
         }
         $formElements = $formConfig['form']['elements'];
+        $tableFields = [];
         $translations = [];
         foreach ($formElements as $idx => $elem) {
             $name = $elem['name'];
-            if ($tableFieldDataTypes[$name] == Types::DATETIME_MUTABLE) {$tableFieldDataTypes[$name] = 'date_format:Y-m-d H:i:s';}
-            if ($tableFieldDataTypes[$name] == Types::TEXT) {$tableFieldDataTypes[$name] = Types::STRING;}
+            if ($tableFieldDataTypes[$name] == Types::DATETIME_MUTABLE) {$tableFields[$name] = 'date_format:Y-m-d H:i:s';}
+            if ($tableFieldDataTypes[$name] == Types::TEXT) {$tableFields[$name] = Types::STRING;}
             
             // for integer
             if ($tableFieldDataTypes[$name] == Types::INTEGER) {
                 $translations[$name. "." . Types::INTEGER] = __("lumenDemo::translations.tr_melis_lumen_notification_not_int");
             }
             if (isset($elem['attributes']['required']) && $elem['attributes']['required']) {
-                $tableFieldDataTypes[$name] = $tableFieldDataTypes[$name] . "|required";
+                if (isset($tableFields[$name])) {
+                    $tableFields[$name] = $tableFields[$name] . "|required";
+                }
                 $translations[$name. ".required"] = __("lumenDemo::translations.tr_melis_lumen_notification_empty");
             }
         }
 
-        return Validator::make($postData,$tableFieldDataTypes, $translations);
+        return Validator::make($postData,$tableFields, $translations);
     }
 
     public function getFieldDataTypes($tableName)
@@ -204,7 +207,7 @@ class [template_service_name]
             foreach ($data as $locale => $val) {
                 // check for existing data
                 $dbData = DB::connection('melis')->table('[second_table]')->select('*')
-                    ->whereRaw('[secondary_table_fk] = ' . $val['[secondary_table_fk]'] . ' AND [secondary_table_pk]= '. $val['[secondary_table_lang_fk]'])
+                    ->whereRaw('[secondary_table_fk] = ' . $val['[secondary_table_fk]'] . ' AND [secondary_table_lang_fk]= '. $val['[secondary_table_lang_fk]'])
                     ->get()
                     ->first();
 
@@ -215,7 +218,7 @@ class [template_service_name]
                     unset($val['cnews_text_id']);
                     // update if there is data
                     $success[] = DB::connection('melis')->table('[second_table]')
-                        ->where('[secondary_table_fk]',"=",$dbData->[secondary_table_pk])
+                        ->where('[secondary_table_pk]',"=",$dbData->[secondary_table_pk])
                         ->update($val);
                 }
 

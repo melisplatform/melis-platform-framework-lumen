@@ -673,10 +673,10 @@ class MelisLumenModuleService
                     data.push({locale : elem.data('lang'), formData : elem.find(\"form\").serializeArray() });
                 });
                 data2.trans = data;
-                foofighterTool.saveAlbumData(data2,function(data){
+                " . $modulename  ."Tool.saveAlbumData(data2,function(data){
                     $(\".lumen-modal-close\").trigger('click');
                     // reload the tool
-                    foofighterTool.refreshTable();
+                    " . $modulename . "Tool.refreshTable();
                     // Close add/update tab zone
                     $(\"a[href$='\" + data.id + \"_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
     

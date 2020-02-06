@@ -122,8 +122,11 @@ class IndexController extends BaseController
         $icon = MelisCoreFlashMessengerService::WARNING;
         // id
         $id = null;
+        $propertiesParams  = $this->constructRequestParams($requestParams['properties']);
+        $transParams       = $this->constructTransRequestParams($requestParams['trans']);
+
         // construct validator
-        $validator = $this->toolService->constructValidator($requestParams,Config::get('[module_name]')['form_config']);
+        $validator = $this->toolService->constructValidator($propertiesParams,Config::get('[module_name]')['form_config']);
         if ($validator->fails()) {
             $errors = $this->formatErrorMessages($validator->errors()->toArray());
         }
@@ -134,23 +137,25 @@ class IndexController extends BaseController
             // set info icon for flash messeages
             $icon = MelisCoreFlashMessengerService::INFO;
             // check for id
-            if (isset($requestParams['[primary_key]']) && ! empty($requestParams['[primary_key]'])) {
+            if (isset($propertiesParams['[primary_key]']) && ! empty($propertiesParams['[primary_key]'])) {
                 // set id
-                $id = $requestParams['[primary_key]'];
+                $id = $propertiesParams['[primary_key]'];
                 // remove id from the parameters
-                unset($requestParams['[primary_key]']);
+                unset($propertiesParams['[primary_key]']);
                 // set log type code
                 $logTypeCode = ucwords('[module_name]') . "_UPDATE";
                 // update album
-                $this->toolService->save($requestParams,$id);
+                $this->toolService->save($propertiesParams,$id);
                 // set message
                 $message = "tr_" . strtolower('[module_name]') ."_update_item_success";
             } else {
                 // save date
-                $id = $this->toolService->save($requestParams)['id'];
+                $id = $this->toolService->save($propertiesParams)['id'];
                 // set message
                 $message = "tr_" . strtolower('[module_name]') ."_save_item_success";
             }
+            // save language date
+            $this->toolService->saveLanguageData($transParams);
         }
 
         // add to melis flash messenger
