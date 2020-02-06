@@ -198,13 +198,16 @@ class [template_service_name]
 
         return $fields;
     }
-    public function saveLanguageData($data)
+    public function saveLanguageData($data, $id = null)
     {
         $success = false;
 
         try {
 
             foreach ($data as $locale => $val) {
+                if (isset($val['[secondary_table_fk]']) && empty($val['[secondary_table_fk]'])) {
+                    $val['[secondary_table_fk]'] = $id;
+                }
                 // check for existing data
                 $dbData = DB::connection('melis')->table('[second_table]')->select('*')
                     ->whereRaw('[secondary_table_fk] = ' . $val['[secondary_table_fk]'] . ' AND [secondary_table_lang_fk]= '. $val['[secondary_table_lang_fk]'])

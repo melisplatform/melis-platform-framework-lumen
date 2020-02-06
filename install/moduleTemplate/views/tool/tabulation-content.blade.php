@@ -14,8 +14,9 @@ if ($id) {
 @endphp
 <div class="me-heading bg-white border-bottom">
     <div class="row">
+
         <div class="me-hl col-xs-8 col-sm-8 col-md-8">
-            <h1 class="content-heading">{{  ($itemId) ? $text : __($text)}}</h1>
+            <h1 class="content-heading">{{  ($itemId) ? __("[module_name]::messages.tr_" . $smModuleName . "_title") . " / " . $itemId : __($text)}}</h1>
         </div>
         <div class="me-hl col-xs-4 col-sm-4 col-md-4">
             <button class="btn btn-success pull-right" id="save-<?= $smModuleName ?>" data-id="{{ $itemId }}" data-target="<?= $smModuleName . $itemId?>"><i class="fa fa-save"></i> {{ __('lumenDemo::translations.tr_common_save') }}</button>

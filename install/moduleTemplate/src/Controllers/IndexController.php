@@ -155,7 +155,7 @@ class IndexController extends BaseController
                 $message = "tr_" . strtolower('[module_name]') ."_save_item_success";
             }
             // save language date
-            $this->toolService->saveLanguageData($transParams);
+            $this->toolService->saveLanguageData($transParams, $id);
         }
 
         // add to melis flash messenger

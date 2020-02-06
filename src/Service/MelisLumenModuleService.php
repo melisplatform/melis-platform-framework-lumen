@@ -845,6 +845,7 @@ class MelisLumenModuleService
         $columns = $this->getToolCreatorSession()['step4']['tcf-db-table-cols'];
         $partialContent = null;
         foreach ($columns as $i => $val) {
+            $val = str_replace('tclangtblcol_', null,$val);
             $partialContent .= "'". $val . "',";
         }
 
