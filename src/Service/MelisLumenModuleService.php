@@ -490,7 +490,7 @@ class MelisLumenModuleService
     }
     private function toolType()
     {
-        if (!$this->hasSecondaryTable()) {
+        if (!$this->toolIsTab()) {
             return "data-toggle='modal' data-target='#" . strtolower($this->getModuleName())  . "Modal'";
         }
         return null;
@@ -596,6 +596,8 @@ class MelisLumenModuleService
 
     }';
         }
+
+        return $script;
     }
     private function joinSecondTableData()
     {

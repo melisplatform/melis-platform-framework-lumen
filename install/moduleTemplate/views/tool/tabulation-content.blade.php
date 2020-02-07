@@ -33,7 +33,7 @@ if ($id) {
             </li>
             @if ($toolHasLanguageTable)
                 <li>
-                    <a href="#{{ $smModuleName }}-tool-lang-tab-{{ $itemId }}" class="glyphicons tag" data-toggle="tab" aria-expanded="true"><i></i>
+                    <a href="#{{ $smModuleName }}-tool-lang-tab-{{ $itemId }}" class="glyphicons font" data-toggle="tab" aria-expanded="true"><i></i>
                         <span>Languages</span>
                     </a>
                 </li>
