@@ -98,7 +98,7 @@ class IndexController extends BaseController
         $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
         return view("$this->viewNamespace::tool/modal-content",[
             'form' => $this->melisToolService->createDynamicForm(Config::get('[module_name]')['form_config'],$data),
-            'langForm' => $this->toolService->getLanguageTableDataWithForm('[secondary_table_fk]',$data['[primary_key]'] ?? null),
+            [lang_form]
             'langs' => $cmsLang->fetchAll()->toArray(),
             'id' => $id
         ]);
@@ -123,7 +123,7 @@ class IndexController extends BaseController
         // id
         $id = null;
         $propertiesParams  = $this->constructRequestParams($requestParams['properties']);
-        $transParams       = $this->constructTransRequestParams($requestParams['trans']);
+        $transParams       = $this->constructTransRequestParams($requestParams['trans'] ?? []);
 
         // construct validator
         $validator = $this->toolService->constructValidator($propertiesParams,Config::get('[module_name]')['form_config']);
@@ -155,7 +155,9 @@ class IndexController extends BaseController
                 $message = "tr_" . strtolower('[module_name]') ."_save_item_success";
             }
             // save language date
-            $this->toolService->saveLanguageData($transParams, $id);
+            if (! empty($transParams)) {
+                $this->toolService->saveLanguageData($transParams, $id);
+            }
         }
 
         // add to melis flash messenger
@@ -241,21 +243,20 @@ class IndexController extends BaseController
     }
     private function constructTransRequestParams($requestparams)
     {
-        if (empty($requestparams)) {
-            throw new \Exception("Request paramaters empty");
-        }
         $postParams = [];
-        /** @var MelisCmsLangTable $cmsLang */
-        $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
-        foreach ($requestparams as $i => $val) {
-            $postParams[$val['locale']] = [];
-            foreach ($val['formData'] as $ii => $val2) {
-                if ($val2['name'] == '[second_table_lang_fk]') {
-                    $val2['value'] = $cmsLang->getEntryByField('lang_cms_locale',$val['locale'])->current()->lang_cms_id;
+        if (!empty($requestparams)) {
+            /** @var MelisCmsLangTable $cmsLang */
+            $cmsLang = app('ZendServiceManager')->get('MelisEngineTableCmsLang');
+            foreach ($requestparams as $i => $val) {
+                $postParams[$val['locale']] = [];
+                foreach ($val['formData'] as $ii => $val2) {
+                    if ($val2['name'] == '[second_table_lang_fk]') {
+                        $val2['value'] = $cmsLang->getEntryByField('lang_cms_locale',$val['locale'])->current()->lang_cms_id;
+                    }
+                    $postParams[$val['locale']]["$val2[name]"] = $val2['value'];
                 }
-                $postParams[$val['locale']]["$val2[name]"] = $val2['value'];
-            }
 
+            }
         }
 
         return $postParams;

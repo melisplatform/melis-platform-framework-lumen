@@ -107,6 +107,7 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
+
         if (! empty($this->toolCreatorSession)) {
             // set module name
             $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
@@ -115,7 +116,9 @@ class MelisLumenModuleService
             // set table primary key
             $this->setTablePrimaryKey(DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name);
             // set secondary primary key
-            $this->secondaryTablePrimarykey = DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getSecondaryTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name;
+            if ($this->hasSecondaryTable()){
+                $this->secondaryTablePrimarykey = DB::connection('melis')->select(DB::raw("SHOW KEYS FROM `" . $this->getSecondaryTableName() . "` WHERE Key_name = 'PRIMARY'"))[0]->Column_name;
+            }
         } else {
             die("Run first melis tool creator with an option of create a tool with framework");
         }
@@ -362,6 +365,7 @@ class MelisLumenModuleService
         // get the template controller
         $tmpController = file_get_contents(self::TEMPLATE_CONTROLLER);
         $keyToReplace = [
+            '[lang_form]'            => $this->getLangFormScript(),
             '[primary_key]'          => $this->getTablePrimaryKey(),
             '[secondary_table_pk]'   => $this->getSecondaryTablePrimaryKey(),
             '[secondary_table_fk]'   => $this->getSecondaryTableForeignKey(),
@@ -376,7 +380,15 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."IndexController.php",$data);
     }
+    private function getLangFormScript()
+    {
+        $script = null;
+        if ($this->hasSecondaryTable()) {
+            $script = '\'langForm\' => $this->toolService->getLanguageTableDataWithForm(\'[secondary_table_fk]\',$data[\'[primary_key]\'] ?? null),';
+        }
 
+        return $script;
+    }
     /**
      * create view files for the lumen module
      */
@@ -403,7 +415,7 @@ class MelisLumenModuleService
             }
             $tmpView = str_replace('[?]', '?',$tmpView);
             if (!$this->toolIsTab()){
-                $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ " . strtolower($this->getModuleName()) ."  }}Modal\"",$tmpView);
+                $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ '" . strtolower($this->getModuleName()) ."'  }}Modal\"",$tmpView);
             }
             $tmpView = str_replace('[tool_has_lang_table]',$this->hasSecondaryTable(),$tmpView);
             // replace module_name in file
@@ -478,8 +490,8 @@ class MelisLumenModuleService
     }
     private function toolType()
     {
-        if (!$this->toolIsTab()) {
-            return "data-toggle=\"modal\" data-target=\"#" . strtolower($this->getModuleName())  . "Modal\"";
+        if (!$this->hasSecondaryTable()) {
+            return "data-toggle='modal' data-target='#" . strtolower($this->getModuleName())  . "Modal'";
         }
         return null;
     }
@@ -520,6 +532,7 @@ class MelisLumenModuleService
         // get the template controller
         $tmpFile = file_get_contents(self::TEMPLATE_SERVICE);
         $keyToReplace = [
+            '[save_lang_data_func]'     => $this->saveLangDataFunction(),
             '[model_name]'              => $this->getModelName(),
             '[primary_key]'             => $this->getTablePrimaryKey(),
             '[template_service_name]'   => $this->getModuleName() . "Service",
@@ -539,6 +552,50 @@ class MelisLumenModuleService
         $data =  "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$tmpFile);
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $this->getModuleName() . "Service.php",$data);
+    }
+    public function saveLangDataFunction()
+    {
+        $script = null;
+        if ($this->hasSecondaryTable()) {
+            $script = 'public function saveLanguageData($data, $id = null)
+    {
+        $success = false;
+
+        try {
+
+            foreach ($data as $locale => $val) {
+                if (isset($val[\'[secondary_table_fk]\']) && empty($val[\'[secondary_table_fk]\'])) {
+                    $val[\'[secondary_table_fk]\'] = $id;
+                }
+                // check for existing data
+                $dbData = DB::connection(\'melis\')->table(\'[second_table]\')->select(\'*\')
+                    ->whereRaw(\'[secondary_table_fk] = \' . $val[\'[secondary_table_fk]\'] . \' AND [secondary_table_lang_fk]= \'. $val[\'[secondary_table_lang_fk]\'])
+                    ->get()
+                    ->first();
+
+    //                // save if no data
+                if (empty($dbData)) {
+                    $success[] = DB::connection(\'melis\')->table(\'[second_table]\')->insert($val);
+                } else {
+                    unset($val[\'cnews_text_id\']);
+                    // update if there is data
+                    $success[] = DB::connection(\'melis\')->table(\'[second_table]\')
+                        ->where(\'[secondary_table_pk]\',"=",$dbData->[secondary_table_pk])
+                        ->update($val);
+                }
+
+            }
+        } catch(\Exception $err) {
+            throw new \Exception($err->getMessage());
+        }
+
+        return [
+            \'success\' => $success,
+
+        ];
+
+    }';
+        }
     }
     private function joinSecondTableData()
     {
@@ -657,36 +714,34 @@ class MelisLumenModuleService
     private function saveButtonEventJs()
     {
         $modulename = strtolower($this->getModuleName());
-        $script = "$(\"body\").on('click', '#save-$modulename', function(){
-            $(\"#$modulename form\").submit();
-        });";
-        // override script
+        $tabOpen = null;
         if ($this->toolIsTab()) {
-            $script = "
-            $(\"body\").on('click', '#save-$modulename', function(){
-                var targetForm = $(this).data('target');
-                var data = [];
-                var data2 = {};
-                data2.properties = $(\"#\" + activeTabId + \" #" . $modulename ."form\").serializeArray();
-                $(\"#\" + activeTabId + \" .$modulename-text-translation\").each(function(i,value){
-                    var elem = $(value);
-                    data.push({locale : elem.data('lang'), formData : elem.find(\"form\").serializeArray() });
-                });
-                data2.trans = data;
-                " . $modulename  ."Tool.saveAlbumData(data2,function(data){
-                    $(\".lumen-modal-close\").trigger('click');
-                    // reload the tool
-                    " . $modulename . "Tool.refreshTable();
-                    // Close add/update tab zone
-                    $(\"a[href$='\" + data.id + \"_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
-    
-                    // Open new created/updated entry
-                    melisHelper.tabOpen(translations.tr_" . $modulename . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $modulename . "_tool_form', '" . $modulename . "_tool_form', {id: data.id}, 'id_" . $modulename . "_tool');
-                },function(){
-                    saveBtn.removeAttr('disabled')
-                });
-             });";
+            $tabOpen = "// Open new created/updated entry
+                melisHelper.tabOpen(translations.tr_" . $modulename . "_title + ' / ' + data.id, 'fa fa-puzzle-piece', data.id+'_id_" . $modulename . "_tool_form', '" . $modulename . "_tool_form', {id: data.id}, 'id_" . $modulename . "_tool');";
         }
+
+        $script =  "
+        $(\"body\").on('click', '#save-$modulename', function(){
+            var targetForm = $(this).data('target');
+            var data = [];
+            var data2 = {};
+            data2.properties = $(\"#\" + activeTabId + \" #" . $modulename ."form\").serializeArray();
+            $(\"#\" + activeTabId + \" .$modulename-text-translation\").each(function(i,value){
+                var elem = $(value);
+                data.push({locale : elem.data('lang'), formData : elem.find(\"form\").serializeArray() });
+            });
+            data2.trans = data;
+            " . $modulename  ."Tool.saveAlbumData(data2,function(data){
+                $(\".lumen-modal-close\").trigger('click');
+                // reload the tool
+                " . $modulename . "Tool.refreshTable();
+                // Close add/update tab zone
+                $(\"a[href$='\" + data.id + \"_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
+                $tabOpen
+            },function(){
+                //saveBtn.removeAttr('disabled')
+            });
+         });";
 
         return $script;
     }

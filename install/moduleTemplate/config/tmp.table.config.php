@@ -26,7 +26,7 @@ return array(
         'columns' => [tool_columns]
         'searchables' => [tool_searchables]
         'actionButtons' => array(
-            'edit' => "<a href=\"#modal-template-manager-actions\" [tool-type] class=\"btn btn-success edit-".  $smModuleName  . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_edit") ."\"> <i class=\"fa fa-pencil\"> </i> </a>\t",
+            'edit' => "<a href=\"#modal-template-manager-actions\" [tool_type] class=\"btn btn-success edit-".  $smModuleName  . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_edit") ."\"> <i class=\"fa fa-pencil\"> </i> </a>\t",
             'delete' => "<a class=\"btn btn-danger delete-" . $smModuleName . "\" title=\"" . __("[module_name]::messages.tr_" . $smModuleName . "_common_delete")  ."\" > <i class=\"fa fa-times\"> </i> </a>"
         ),
     ),

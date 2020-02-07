@@ -158,6 +158,7 @@ class [template_service_name]
         $translations = [];
         foreach ($formElements as $idx => $elem) {
             $name = $elem['name'];
+            $tableFields[$name] = $tableFieldDataTypes[$name];
             if ($tableFieldDataTypes[$name] == Types::DATETIME_MUTABLE) {$tableFields[$name] = 'date_format:Y-m-d H:i:s';}
             if ($tableFieldDataTypes[$name] == Types::TEXT) {$tableFields[$name] = Types::STRING;}
             
@@ -198,44 +199,7 @@ class [template_service_name]
 
         return $fields;
     }
-    public function saveLanguageData($data, $id = null)
-    {
-        $success = false;
-
-        try {
-
-            foreach ($data as $locale => $val) {
-                if (isset($val['[secondary_table_fk]']) && empty($val['[secondary_table_fk]'])) {
-                    $val['[secondary_table_fk]'] = $id;
-                }
-                // check for existing data
-                $dbData = DB::connection('melis')->table('[second_table]')->select('*')
-                    ->whereRaw('[secondary_table_fk] = ' . $val['[secondary_table_fk]'] . ' AND [secondary_table_lang_fk]= '. $val['[secondary_table_lang_fk]'])
-                    ->get()
-                    ->first();
-
-    //                // save if no data
-                if (empty($dbData)) {
-                    $success[] = DB::connection('melis')->table('[second_table]')->insert($val);
-                } else {
-                    unset($val['cnews_text_id']);
-                    // update if there is data
-                    $success[] = DB::connection('melis')->table('[second_table]')
-                        ->where('[secondary_table_pk]',"=",$dbData->[secondary_table_pk])
-                        ->update($val);
-                }
-
-            }
-        } catch(\Exception $err) {
-            throw new \Exception($err->getMessage());
-        }
-
-        return [
-            'success' => $success,
-
-        ];
-
-    }
+    [save_lang_data_func]
     public function getLanguageTableDataWithForm($field, $value)
     {
         // melis cms language table

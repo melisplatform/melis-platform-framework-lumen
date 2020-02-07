@@ -12,6 +12,7 @@ window.[module_name]Tool = {
     },
     getToolModal : function(callback, id){
         if (typeof(callback) ==='undefined') callback = null;
+        if (typeof(id) ==='undefined') id = 0;
         var data = "";
         [module_name]Tool.currentRequest =  $.ajax({
             type: 'GET',
