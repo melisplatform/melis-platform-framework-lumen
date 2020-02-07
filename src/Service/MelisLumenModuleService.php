@@ -210,6 +210,7 @@ class MelisLumenModuleService
      */
     public function add($newClass)
     {
+
         // get service provider file path
         $serviceProviders = require $this->getServiceProvidersPath();
         // check if class exists
@@ -417,12 +418,14 @@ class MelisLumenModuleService
             if (!$this->toolIsTab()){
                 $tmpView = str_replace('[tool_type]', "data-toggle=\"modal\" data-target=\"#{{ '" . strtolower($this->getModuleName()) ."'  }}Modal\"",$tmpView);
             }
-            $tmpView = str_replace('[tool_has_lang_table]',$this->hasSecondaryTable(),$tmpView);
+            $tmpView = str_replace('[tool_has_lang_table]',$this->hasSecondaryTable() ? $this->hasSecondaryTable() : 0,$tmpView);
+
             // replace module_name in file
             $data =  $phpTag . str_replace('[module_name]',$this->getModuleName(),$tmpView);
             // create a file
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."$idx.blade.php",$data);
         }
+
     }
 
     /**
@@ -520,7 +523,7 @@ class MelisLumenModuleService
     }
     private function hasSecondaryTable()
     {
-       return $this->getToolCreatorSession()['step3']['tcf-db-table-has-language'];
+       return $this->getToolCreatorSession()['step3']['tcf-db-table-has-language'] ?? false;
     }
     public function createServiceFile()
     {

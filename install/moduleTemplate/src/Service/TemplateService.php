@@ -214,22 +214,20 @@ class [template_service_name]
             ->toArray();
         }
 
-        if (!empty($tmpData)) {
-            foreach($tmpData as $idx => $val) {
-                $val = (array) $val;
-                foreach ($cmsLangData as $i => $lang) {
+        foreach ($cmsLangData as $i => $lang) {
+            $data["" . $lang['lang_cms_locale'] . ""] = [
+                'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'])
+            ];
+            if (!empty($tmpData)) {
+                foreach ($tmpData as $idx => $val) {
+                    $val = (array)$val;
+                    // set data if it has existing data
                     if ($val['[secondary_table_lang_fk]'] == $lang['lang_cms_id']) {
-                        $data["". $lang['lang_cms_locale']. ""] = [
-                            'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'],$val)
+                        $data["" . $lang['lang_cms_locale'] . ""] = [
+                            'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'], $val)
                         ];
                     }
                 }
-            }
-        } else {
-            foreach ($cmsLangData as $i => $lang) {
-                $data["". $lang['lang_cms_locale']. ""] = [
-                    'form' => $this->platformToolService->createDynamicForm(Config::get('[module_name]')['form_config']['language_form'])
-                ];
             }
         }
 

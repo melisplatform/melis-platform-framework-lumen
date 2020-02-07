@@ -7,7 +7,7 @@ if ($id) {
     $text = '[module_name]::messages.tr_' . $smModuleName . '_common_edit';
 }
 $itemId = $id ?? 0;
-$toolHasLanguageTable = [tool_has_lang_table];
+$toolHasLanguageTable = [tool_has_lang_table] ?? 0;
 ?>
 <div class="widget-head">
     <ul class="nav nav-tabs">
