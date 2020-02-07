@@ -161,7 +161,7 @@ class MelisPlatformToolService
             }
             // tooltip
             if ($this->checkArraykey('tooltip',$elements)) {
-                $toolTip = '<i class="fa fa-info-circle fa-lg pull-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
+                $toolTip = '<i class="fa fa-info-circle fa-lg float-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
             }
             // check required attribute
             $required = null;
@@ -170,7 +170,7 @@ class MelisPlatformToolService
             }
             //label
             if ($this->checkArraykey('label',$elements)) {
-                $label = "<label>" . ($elements['label'] ?? null) . " " . $required  . " " . $toolTip ."</label>";
+                $label = "<label class='d-flex flex-row justify-content-between'>" . ($elements['label'] ?? null) . " " . $required  . " " . $toolTip ."</label>";
             }
             // for inputs
             $value = isset($data[$elements['attributes']['name']]) ? "value='". $data[$elements['attributes']['name']] ."'" : null;
