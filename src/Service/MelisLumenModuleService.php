@@ -107,9 +107,7 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-//
-//        print_r($this->toolCreatorSession);
-//        die;
+
         if (! empty($this->toolCreatorSession)) {
             // set module name
             $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
@@ -914,8 +912,13 @@ class MelisLumenModuleService
         $columns = $this->getToolCreatorSession()['step4']['tcf-db-table-cols'];
         $partialContent = null;
         foreach ($columns as $i => $val) {
-            $val = str_replace('tclangtblcol_', null,$val);
-            $partialContent .= "'". $val . "',";
+            if (preg_match('/(tclangtblcol_)/',$val)) {
+//                $val = $this->getSecondaryTableName() . "." . str_replace('tclangtblcol_', null,$val);
+            } else {
+                $val = $this->getTableName() . ".". $val;
+                $partialContent .= "'". $val . "',";
+            }
+
         }
 
         return  "[" . $partialContent . "],";
