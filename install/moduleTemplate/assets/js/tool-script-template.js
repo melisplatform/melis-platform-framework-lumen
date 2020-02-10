@@ -41,7 +41,7 @@ window.[module_name]Tool = {
             console.log(data);
         });
     },
-    saveAlbumData : function(data,callback,callbackFail){
+    saveData : function(data,callback,callbackFail){
         if (typeof(callback) ==='undefined') callback = null;
         if (typeof(callbackFail) ==='undefined') callbackFail = null;
 
@@ -50,7 +50,10 @@ window.[module_name]Tool = {
             url         : '/melis/[module_name]/save',
             data        : data,
             dataType    : 'json',
-            encode		: true
+            encode		: true,
+            contentType : false,
+            processData : false,
+            cache : false
         }).done(function(data){
             if(data.success) {
                 if(typeof callback !== "undefined" && typeof callback === "function") {

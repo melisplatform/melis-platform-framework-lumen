@@ -127,9 +127,25 @@ class IndexController extends BaseController
         $icon = MelisCoreFlashMessengerService::WARNING;
         // id
         $id = null;
-        $propertiesParams  = $this->constructRequestParams($requestParams['properties']);
-        $transParams       = $this->constructTransRequestParams($requestParams['trans'] ?? []);
-
+        $transParams  = $this->constructTransRequestParams(json_decode($requestParams['trans'],true) ?? []);
+        unset($requestParams['trans']);
+        $propertiesParams = $requestParams;
+        // temp value for files
+        if (empty($propertiesParams['[primary_key]'])) {
+            if (!empty(app('request')->file())) {
+                // set temporary value
+                foreach (app('request')->file() as $field => $file) {
+                    $propertiesParams[$field] = "temp-value";
+                }
+            }
+        } else {
+            // get data from db
+            $tmpData = $this->toolService->getDataById($propertiesParams['[primary_key]'])->getOriginal();
+            // merge with updated date
+            $updatedData = array_merge($tmpData,$propertiesParams);
+            // set for update
+            $propertiesParams = $updatedData;
+        }
         // construct validator
         $validator = $this->toolService->constructValidator($propertiesParams,Config::get('[module_name]')['form_config']);
         if ($validator->fails()) {
@@ -162,6 +178,16 @@ class IndexController extends BaseController
             // save language date
             if (! empty($transParams)) {
                 $this->toolService->saveLanguageData($transParams, $id);
+            }
+            // upload file and update data
+            if (!empty(app('request')->file())) {
+                // uploaded files
+                $filePaths = [];
+                foreach (app('request')->file() as $field => $file) {
+                    $filePaths[$field] = $this->toolService->uploadFile($id,$file);
+                }
+                // update
+                $this->toolService->save($filePaths,$id);
             }
         }
 
@@ -266,4 +292,6 @@ class IndexController extends BaseController
 
         return $postParams;
     }
+
+
 }

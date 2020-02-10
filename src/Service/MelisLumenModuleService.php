@@ -316,6 +316,7 @@ class MelisLumenModuleService
     private function constructFolderStructure()
     {
         $foldersToCreate = [
+            'assets',
             'config',
             'language',
             'routes',
@@ -732,18 +733,21 @@ class MelisLumenModuleService
             var targetForm = $(this).data('target');
             var data = [];
             var data2 = {};
-            data2.properties = $(\"#\" + activeTabId + \" #" . $modulename ."form\").serializeArray();
+            
+            var formData = new FormData($(\"#\" + activeTabId + \" #" .  $modulename . "form\")[0]);
             $(\"#\" + activeTabId + \" .$modulename-text-translation\").each(function(i,value){
                 var elem = $(value);
                 data.push({locale : elem.data('lang'), formData : elem.find(\"form\").serializeArray() });
             });
-            data2.trans = data;
-            " . $modulename  ."Tool.saveAlbumData(data2,function(data){
+            formData.append('trans',JSON.stringify(data));
+            " . $modulename  ."Tool.saveData(formData,function(data){
                 $(\".lumen-modal-close\").trigger('click');
                 // reload the tool
                 " . $modulename . "Tool.refreshTable();
                 // Close add/update tab zone
                 $(\"a[href$='\" + data.id + \"_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
+                // close for existing tab
+                $(\"a[href$='0_id_" . $modulename . "_tool_form']\").siblings('.close-tab').trigger('click');
                 $tabOpen
             },function(){
                 //saveBtn.removeAttr('disabled')
@@ -757,7 +761,9 @@ class MelisLumenModuleService
         $script = null;
         if ($this->toolIsTab()) {
             $moduleName = strtolower($this->getModuleName());
-            $script = "// Close add/update tab zone
+            $script = "// Close recently added tab zone
+                $(\"a[href$='0_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
+                // close for existing tab
                 $(\"a[href$='\" + data.id + \"_id_" . $moduleName . "_tool_form']\").siblings('.close-tab').trigger('click');
 
                 // Open new created/updated entry
@@ -930,6 +936,9 @@ class MelisLumenModuleService
                 'name' => '". $field . "',
                 'options' => [
                     'label'   => " . ($options['label'] ?? null) . ",
+                    'label_attributes' => [
+                        'class' => 'd-flex flex-row justify-content-between'
+                    ],
                     'tooltip' => " . ($options['tooltip'] ?? null) . ",
                     'filestyle_options' => [
                         'buttonBefore' => true,
@@ -949,6 +958,9 @@ class MelisLumenModuleService
                 'name' => '". $field . "',
                 'options' => [
                     'label'   => " . ($options['label'] ?? null) . ",
+                    'label_attributes' => [
+                        'class' => 'd-flex flex-row justify-content-between'
+                    ],
                     'tooltip' => " . ($options['tooltip'] ?? null) . ",
                     'switchOptions' => [
                         'label' => 'STATUS',
@@ -973,6 +985,9 @@ class MelisLumenModuleService
                 'name' => '". $field . "',
                 'options' => [
                     'label'   => " . ($options['label'] ?? null) . ",
+                    'label_attributes' => [
+                        'class' => 'd-flex flex-row justify-content-between'
+                    ],
                     'tooltip' => " . ($options['tooltip'] ?? null) . ",
                 ],
                 'attributes' => [

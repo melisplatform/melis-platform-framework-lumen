@@ -271,7 +271,6 @@ class [template_service_name]
     }
     public function getAdminNameByUserId($userId)
     {
-        $userId = 1;
         $data = null;
         $coreTable = app('ZendServiceManager')->get('MelisCoreTableUser')->getEntryById($userId)->current();
         if (! empty($coreTable)) {
@@ -282,7 +281,6 @@ class [template_service_name]
     }
     public function getLanguageByLangId($langId)
     {
-        $langId  = 1;
         $data = null;
         $langData = app('ZendServiceManager')->get('MelisEngineTableCmsLang')->getEntryById($langId)->current();
         if (! empty($langData)) {
@@ -290,5 +288,94 @@ class [template_service_name]
         }
 
         return $data;
+    }
+
+    public function getTemplateNameByTplId($tplId)
+    {
+        $data = null;
+        $siteData = app('ZendServiceManager')->get('MelisEngineTableSite')->getEntryById($tplId)->current();
+        if (! empty($siteData)) {
+            $data = $siteData->site_label;
+        }
+
+        return $data;
+    }
+    public function getSiteNameBySiteId($siteId)
+    {
+        $data = null;
+        $tplData = app('ZendServiceManager')->get('MelisEngineTableSite')->getEntryById($siteId)->current();
+        if (! empty($tplData)) {
+            $data = $tplData->tpl_name;
+        }
+
+        return $data;
+    }
+    /**
+    * upload file
+    *
+    * @param $id
+    * @param $file UploadedFile
+    * @return null|string
+    */
+    public function uploadFile($id,$file)
+    {
+        $fileName = "";
+        // uploading directory
+        $uploadDir = __DIR__ . "/../../assets/$id";
+        // create directory
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir,0777);
+        }
+        // rename duplicate image
+        $destination = $uploadDir . "/" ;
+        if (file_exists($destination .  $file->getClientOriginalName())) {
+            $fileName = $this->renameFileRec($destination .  $file->getClientOriginalName());
+        } else {
+            $fileName = $file->getClientOriginalName();
+        }
+        // upload file into the folder
+        move_uploaded_file($file->getPathname(),$destination . $fileName);
+
+        return "/melis/[module_name]/$id/$fileName";
+    }
+
+    /**
+    *
+    * rename file name
+    *
+    * @param $filenamePath
+    * @param int $ctr
+    * @return null|string
+    */
+    public function renameFileRec($filenamePath,$ctr = 1)
+    {
+        $pathInfo = pathinfo($filenamePath);
+        $newFileName = null;
+        if (! empty($pathInfo)) {
+            $directory = $pathInfo['dirname'];
+            $extension = "." .$pathInfo['extension'];
+            $pathFileName = $pathInfo['filename'];
+            // if the file is still exists
+            // rename again and again until the file is not exists anymore
+            $renamedFile = $directory . "/" . $pathFileName . "_" . $ctr . $extension;
+            if (file_exists($renamedFile)) {
+                $ctr++;
+                // pass again the current file
+                $newFileName =  $this->renameFileRec($filenamePath,$ctr);
+            } else {
+            // return the new file name
+                $newFileName = $pathInfo['filename'] . "_" . $ctr . $extension;
+            }
+        }
+
+        return $newFileName;
+    }
+    public function removeAllFile($dir)
+    {
+        $files = glob($dir . '/*'); // get all file names
+        foreach($files as $file){ // iterate files
+        if(is_file($file))
+            unlink($file); // delete file
+        }
     }
 }
