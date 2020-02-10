@@ -107,7 +107,9 @@ class MelisLumenModuleService
     {
         // set tool creator session
         $this->toolCreatorSession = app('MelisToolCreatorSession')['melis-toolcreator'];
-
+//
+//        print_r($this->toolCreatorSession);
+//        die;
         if (! empty($this->toolCreatorSession)) {
             // set module name
             $this->setModuleName($this->toolCreatorSession['step1']['tcf-name']);
@@ -884,6 +886,7 @@ class MelisLumenModuleService
     public function getTableColumns()
     {
         $columns = $this->getToolCreatorSession()['step4']['tcf-db-table-cols'];
+        $displayType = $this->getToolCreatorSession()['step4']['tcf-db-table-col-display'];
         $partialContent = null;
         $columnsWidth = round(90/count($columns));
         foreach ($columns as $i => $val) {
@@ -894,7 +897,7 @@ class MelisLumenModuleService
                 $val = str_replace('tclangtblcol_', null,$val);
                 $mainId = $val;
             }
-            $partialContent .= "\t\t\t'$mainId'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true  \n\t\t\t],\n";
+            $partialContent .= "\t\t\t'$mainId'" . " => [\n \t\t\t\t 'text' => __('" . $this->getModuleName() ."::messages.tr_" . strtolower($this->getModuleName()) ."_" . $val . "'),\n\t\t\t\t 'css' => ['width' => '" . $columnsWidth . "%'],\n\t\t\t\t 'sortable' => true ,\n\t\t\t \n\t\t\t\t 'display_type' => '$displayType[$i]'  \n\t\t\t],\n ";
         }
 
         return "[\n  " . $partialContent ." \t\t],";
@@ -1035,6 +1038,7 @@ class MelisLumenModuleService
                     'class' => '" . $moduleName ."LanguageForm',
                     'method' => 'POST',
                     'name' => '" . $moduleName ."LanguageForm',
+                    'enctype' => 'multipart/form-data'
                 ],
                 'elements' => [
                     ". $this->getFormFields(true) . "

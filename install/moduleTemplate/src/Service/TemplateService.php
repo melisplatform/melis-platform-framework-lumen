@@ -233,4 +233,62 @@ class [template_service_name]
 
         return $data;
     }
+    public function filterTableDataDisplay($type, $data)
+    {
+        switch($type) {
+        case "dot_color" :
+
+                if ($data) {
+                    $data = "<span class='fa fa-circle text-success'></span>";
+                } else {
+                    $data = "<span class='fa fa-circle text-success'></span>";
+                }
+
+            break;
+        case "char_length_limit" :
+            if (strlen($data) > 50) {
+                $data = substr($data, 0,50) . " ...";
+            }
+            break;
+            case "admin_name";
+                $data = $this->getAdminNameByUserId($data) ?? $data;
+            break;
+
+            case "lang_name";
+                $data = $this->getLanguageByLangId($data) ?? $data;
+            break;
+
+            case "template_name";
+                $data = $this->getTemplateNameByTplId($data) ?? $data;
+            break;
+
+            case "site_name";
+                $data = $this->getTemplateNameByTplId($data) ?? $data;
+            break;
+        }
+
+        return $data;
+    }
+    public function getAdminNameByUserId($userId)
+    {
+        $userId = 1;
+        $data = null;
+        $coreTable = app('ZendServiceManager')->get('MelisCoreTableUser')->getEntryById($userId)->current();
+        if (! empty($coreTable)) {
+            $data = $coreTable->usr_firstname . " " . $coreTable->usr_lastname;
+        }
+
+        return $data;
+    }
+    public function getLanguageByLangId($langId)
+    {
+        $langId  = 1;
+        $data = null;
+        $langData = app('ZendServiceManager')->get('MelisEngineTableCmsLang')->getEntryById($langId)->current();
+        if (! empty($langData)) {
+            $data = $langData->lang_cms_name;
+        }
+
+        return $data;
+    }
 }

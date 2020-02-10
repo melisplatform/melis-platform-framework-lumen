@@ -42,6 +42,11 @@ class IndexController extends BaseController
 
             $lumenAlbumSrvc = $this->toolService;
             $tableConfig = config('[module_name]')['table_config'];
+            $tableColumnDisplayType = $tableConfig['table']['columns'];
+            $displayTypes = [];
+            foreach ($tableColumnDisplayType as $field => $val) {
+                $displayTypes[$field] = $val['display_type'];
+            }
             $params = $request->request->all();
             /*
             * standard datatable configuration
@@ -68,10 +73,10 @@ class IndexController extends BaseController
                 $toolTableColumns = array_keys($tableConfig['table']['columns']);
                 foreach ($toolTableColumns as $field) {
                     if ($field == 'DT_RowId') {
-                        $tableData[$c]['DT_RowId'] = $datum['[primary_key]'];
+                        $tableData[$c]['DT_RowId'] = $this->toolService->filterTableDataDisplay($displayTypes[$field],$datum['[primary_key]']);
                     } else {
                         if ($field != 'DT_RowId') {
-                            $tableData[$c][$field] = $datum[$field];
+                            $tableData[$c][$field] = $this->toolService->filterTableDataDisplay($displayTypes[$field],$datum[$field]);
                         }
                     }
                 }
