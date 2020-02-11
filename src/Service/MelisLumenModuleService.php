@@ -343,7 +343,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "providers";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         // get the template service provider
         $templateServiceProvider = file_get_contents(self::TEMPLATE_SERVICE_PROVIDER);
@@ -362,7 +362,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Controllers";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         // get the template controller
         $tmpController = file_get_contents(self::TEMPLATE_CONTROLLER);
@@ -399,7 +399,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "views" . DIRECTORY_SEPARATOR . "tool";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         // get the view templates
         foreach (self::TEMPLATE_VIEWS as $idx => $val) {
@@ -440,7 +440,7 @@ class MelisLumenModuleService
             $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "language" . DIRECTORY_SEPARATOR . explode('_',$locale)[0];
             // create directory
             if (!file_exists($pathToCreate)) {
-                mkdir($pathToCreate,077);
+                mkdir($pathToCreate,0777);
             }
             $phpTag = "<?php \n";
             // replace module_name in file
@@ -471,7 +471,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "config";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         $columns = $this->getTableColumns();
         $searchables = $this->getSearchableColumns();
@@ -504,7 +504,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Model";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         // get the template controller
         $tmpModel = file_get_contents(self::TEMPLATE_MODEL);
@@ -531,7 +531,7 @@ class MelisLumenModuleService
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Service";
         // create directory
         if (!file_exists($pathToCreate)) {
-            mkdir($pathToCreate,077);
+            mkdir($pathToCreate,0777);
         }
         // get the template controller
         $tmpFile = file_get_contents(self::TEMPLATE_SERVICE);
@@ -644,7 +644,7 @@ class MelisLumenModuleService
             $pathToCreate = __DIR__ . "/../../../../../module/" . $this->getModuleName() . DIRECTORY_SEPARATOR  . "public" . DIRECTORY_SEPARATOR . "js";
             // create directory
             if (!file_exists($pathToCreate)) {
-                mkdir($pathToCreate,077);
+                mkdir($pathToCreate,0777);
             }
             // get the template controller
             $tmpFile = file_get_contents($file['file']);
@@ -1161,7 +1161,7 @@ class MelisLumenModuleService
     public function makeValidator($postData , $fields = [],$messages =  [])
     {
         // make a validator for the request parameters
-        return Validator::make($requestParams,$fields ,$messages);
+        return Validator::make($postData,$fields ,$messages);
     }
     
     public function toolIsTab()
