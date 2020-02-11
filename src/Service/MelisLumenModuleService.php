@@ -318,8 +318,8 @@ class MelisLumenModuleService
             'config',
             'language',
             'routes',
-            'http',
-            'providers',
+            'Http',
+            'Providers',
             'views'
         ];
         // create folders
