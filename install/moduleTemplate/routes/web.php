@@ -18,7 +18,7 @@ Route::post('/melis/' . $moduleName . '/get-table-data', IndexController::class 
 // get album form
 Route::get('/melis/' . $moduleName . '/form/{id}', IndexController::class . "@toolModalContent");
 // save album data
-Route::post('/melis/ ' . $moduleName . ' /save' , IndexController::class . "@save" );
+Route::post('/melis/ ' . $moduleName . '/save' , IndexController::class . "@save" );
 // delete album
 Route::post('/melis/' . $moduleName . '/delete' , IndexController::class . "@delete" );
 
