@@ -170,7 +170,7 @@ class IndexController extends BaseController
                 // set message
                 $message = "tr_" . strtolower('[module_name]') ."_update_item_success";
             } else {
-                unset($propertiesParams['[primary_key]'];
+                unset($propertiesParams['[primary_key]']);
                 // save date
                 $id = $this->toolService->save($propertiesParams)['id'];
                 // set message
