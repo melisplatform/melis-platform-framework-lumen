@@ -340,7 +340,7 @@ class MelisLumenModuleService
     }
     private function createServiceProviderFile()
     {
-        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "providers";
+        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Providers";
         // create directory
         if (!file_exists($pathToCreate)) {
             mkdir($pathToCreate,0777);
@@ -359,7 +359,7 @@ class MelisLumenModuleService
     }
     private function createControllerFile()
     {
-        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Controllers";
+        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Controllers";
         // create directory
         if (!file_exists($pathToCreate)) {
             mkdir($pathToCreate,0777);
@@ -501,7 +501,7 @@ class MelisLumenModuleService
     }
     private function createModelFile()
     {
-        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Model";
+        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Model";
         // create directory
         if (!file_exists($pathToCreate)) {
             mkdir($pathToCreate,0777);
@@ -528,7 +528,7 @@ class MelisLumenModuleService
     }
     public function createServiceFile()
     {
-        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "http" . DIRECTORY_SEPARATOR . "Service";
+        $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Service";
         // create directory
         if (!file_exists($pathToCreate)) {
             mkdir($pathToCreate,0777);
