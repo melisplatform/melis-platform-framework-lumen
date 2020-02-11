@@ -10,17 +10,17 @@ use LumenModule\[module_name]\Http\Controllers\IndexController;
 | and give it the Closure to call when that URI is requested.
 |
 */
-
-Route::get('/melis/[module_name]/tool',  IndexController::class ."@renderIndex");
+$moduleName = strtolower('[module_name]');
+Route::get('/melis/' . $moduleName . '/tool',  IndexController::class ."@renderIndex");
 // get datatable data
-Route::post('/melis/[module_name]/get-table-data', IndexController::class ."@getTableData");
+Route::post('/melis/' . $moduleName . '/get-table-data', IndexController::class ."@getTableData");
 // get modal
 // get album form
-Route::get('/melis/[module_name]/form/{id}', IndexController::class . "@toolModalContent");
+Route::get('/melis/' . $moduleName . '/form/{id}', IndexController::class . "@toolModalContent");
 // save album data
-Route::post('/melis/[module_name]/save' , IndexController::class . "@save" );
+Route::post('/melis/ ' . $moduleName . ' /save' , IndexController::class . "@save" );
 // delete album
-Route::post('/melis/[module_name]/delete' , IndexController::class . "@delete" );
+Route::post('/melis/' . $moduleName . '/delete' , IndexController::class . "@delete" );
 
 
 

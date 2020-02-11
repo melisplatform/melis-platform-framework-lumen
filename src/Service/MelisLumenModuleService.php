@@ -333,7 +333,7 @@ class MelisLumenModuleService
         // get the template route
         $templateRoutes = file_get_contents(self::TEMPLATE_ROUTE_FILE);
         // replace module_name in file
-        $data = "<?php \n" . str_replace('[module_name]',strtolower($this->getModuleName()),$templateRoutes);
+        $data = "<?php \n" . str_replace('[module_name]',$this->getModuleName(),$templateRoutes);
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR . "web.php",$data);
 
