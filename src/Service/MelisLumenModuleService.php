@@ -88,11 +88,13 @@ class MelisLumenModuleService
      */
     private $configs;
     /**
+     * main model for main table
      * @var string
      */
     private $modelName;
 
     /**
+     * main table primary key
      * @var string
      */
     private $tablePrimaryKey;
@@ -125,14 +127,31 @@ class MelisLumenModuleService
 
     }
 
+    /**
+     * get primary key of main table
+     *
+     * @return string
+     */
     public function getTablePrimaryKey()
     {
         return $this->tablePrimaryKey;
     }
+
+    /**
+     * get primary key of secondary table
+     *
+     * @return mixed
+     */
     public function getSecondaryTablePrimaryKey()
     {
         return $this->secondaryTablePrimarykey;
     }
+
+    /**
+     * set primary key
+     *
+     * @param $primaryKey
+     */
     public function setTablePrimaryKey($primaryKey)
     {
         $this->tablePrimaryKey = $primaryKey;
@@ -167,6 +186,8 @@ class MelisLumenModuleService
         return $this->templateServiceProvider;
     }
     /**
+     * set module name
+     *
      * @param $moduleName
      */
     public function setModuleName($moduleName)
@@ -181,32 +202,52 @@ class MelisLumenModuleService
     {
         return $this->moduleName;
     }
-    
+
+    /**
+     * @param $moduleDir
+     */
     public function setModuleDir($moduleDir)
     {
         $this->moduleDir = $moduleDir;
     }
 
+    /**
+     * @return string
+     */
     public function getModuleDir()
     {
         return $this->moduleDir;
     }
 
+    /**
+     * @return array|mixed
+     */
     public function getToolCreatorSession()
     {
         return $this->toolCreatorSession;
     }
+
+    /**
+     * @return string
+     */
     public function getModelName()
     {
         return $this->modelName;
     }
+
+    /**
+     * @param $modelName
+     */
     public function setModelname($modelName)
     {
         $this->modelName = $modelName;
     }
+
     /**
      * Can add service provider class in file service.providers.php
-     * @param $newClass string
+     *
+     * @param $newClass
+     * @return bool
      */
     public function add($newClass)
     {
@@ -241,17 +282,36 @@ class MelisLumenModuleService
         
         return false;
     }
+
+    /**
+     * edit a file
+     *
+     * @param $file
+     * @param $content
+     * @return bool
+     */
     private function writeFile($file,$content)
     {
+        // check if file exist
         if (file_exists($file)) {
+            // file handler
             $hanlder = fopen($file,"w");
+            // edit file
             fwrite($hanlder,$content);
+            // close file hanlder
             fclose($hanlder);
+
             return true;
         }
 
         return false;
     }
+
+    /**
+     * create a module for lumen framework based from melis-tool-creator session data
+     *
+     * @return array|void
+     */
     public function createModule()
     {
         /*
@@ -287,6 +347,10 @@ class MelisLumenModuleService
             "message" => 'Module ' . $this->getModuleName() . " created successfully"
         ];
     }
+
+    /**
+     * create the required directory for the module
+     */
     private function createModuleDir()
     {
         // first create the "module" folder if not existed
@@ -313,6 +377,7 @@ class MelisLumenModuleService
      */
     private function constructFolderStructure()
     {
+        // required folder
         $foldersToCreate = [
             'assets',
             'config',
@@ -324,9 +389,14 @@ class MelisLumenModuleService
         ];
         // create folders
         foreach ($foldersToCreate as $i => $val) {
+            // create directory
             mkdir($this->getModuleDir() . DIRECTORY_SEPARATOR . $val, 0777);
         }
     }
+
+    /**
+     * create a route file for the lumen module
+     */
     private function createRouteFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR . "routes";
@@ -338,6 +408,10 @@ class MelisLumenModuleService
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR . "web.php",$data);
 
     }
+
+    /**
+     * create service provider lumen module
+     */
     private function createServiceProviderFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Providers";
@@ -357,6 +431,10 @@ class MelisLumenModuleService
         $this->add($providerName);
 
     }
+
+    /**
+     * create controller for lumen module
+     */
     private function createControllerFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Controllers";
@@ -366,6 +444,7 @@ class MelisLumenModuleService
         }
         // get the template controller
         $tmpController = file_get_contents(self::TEMPLATE_CONTROLLER);
+        // keys of a to replace
         $keyToReplace = [
             '[lang_form]'            => $this->getLangFormScript(),
             '[primary_key]'          => $this->getTablePrimaryKey(),
@@ -382,6 +461,10 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  ."IndexController.php",$data);
     }
+
+    /**
+     * @return null|string
+     */
     private function getLangFormScript()
     {
         $script = null;
@@ -456,6 +539,13 @@ class MelisLumenModuleService
         }
 
     }
+
+    /**
+     * create file
+     *
+     * @param $filePath
+     * @param $contents
+     */
     private function createFile($filePath,$contents)
     {
         // open a file or create
@@ -466,6 +556,9 @@ class MelisLumenModuleService
         fclose($file);
     }
 
+    /**
+     * create config files
+     */
     private function createConfigFiles()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "config";
@@ -492,6 +585,12 @@ class MelisLumenModuleService
             $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $fileName. ".config.php",$data);
         }
     }
+
+    /**
+     * determin if the tool is tab or not
+     *
+     * @return null|string
+     */
     private function toolType()
     {
         if (!$this->toolIsTab()) {
@@ -499,6 +598,10 @@ class MelisLumenModuleService
         }
         return null;
     }
+
+    /**
+     * create model file
+     */
     private function createModelFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Model";
@@ -522,10 +625,20 @@ class MelisLumenModuleService
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $modelName . ".php",$data);
 
     }
+
+    /**
+     * determine if the tool has a secondary table
+     *
+     * @return bool
+     */
     private function hasSecondaryTable()
     {
        return $this->getToolCreatorSession()['step3']['tcf-db-table-has-language'] ?? false;
     }
+
+    /**
+     * create service file
+     */
     public function createServiceFile()
     {
         $pathToCreate = $this->getModuleDir() . DIRECTORY_SEPARATOR  . "Http" . DIRECTORY_SEPARATOR . "Service";
@@ -557,6 +670,12 @@ class MelisLumenModuleService
         // create a file
         $this->createFile($pathToCreate . DIRECTORY_SEPARATOR  . $this->getModuleName() . "Service.php",$data);
     }
+
+    /**
+     * js script for saving multi-lingual forms
+     *
+     * @return null|string
+     */
     public function saveLangDataFunction()
     {
         $script = null;
@@ -603,6 +722,10 @@ class MelisLumenModuleService
 
         return $script;
     }
+
+    /**
+     * @return null|string
+     */
     private function joinSecondTableData()
     {
         $string = null;
@@ -626,18 +749,34 @@ class MelisLumenModuleService
 
         return $string;
     }
+
+    /**
+     * @return mixed
+     */
     private function getSecondaryTableName()
     {
         return $this->getToolCreatorSession()['step3']['tcf-db-table-language-tbl'];
     }
+
+    /**
+     * @return null
+     */
     private  function getSecondaryTableForeignKey()
     {
         return $this->getToolCreatorSession()['step3']['tcf-db-table-language-pri-fk'] ?? null;
     }
+
+    /**
+     * @return null
+     */
     private function getTableLanguageForiegnKey()
     {
         return $this->getToolCreatorSession()['step3']['tcf-db-table-language-lang-fk'] ?? null;
     }
+
+    /**
+     *
+     */
     private function createAssetsFile()
     {
         foreach (self::ASSETS as $idx => $file) {
@@ -664,6 +803,10 @@ class MelisLumenModuleService
             $this->createFile($pathToCreate  . DIRECTORY_SEPARATOR . $file['fileName'],$data);
         }
     }
+
+    /**
+     * @return string
+     */
     private function addButtonEventJs()
     {
         $moduleName = strtolower($this->getModuleName());
@@ -687,6 +830,10 @@ class MelisLumenModuleService
 
         return $script;
     }
+
+    /**
+     * @return string
+     */
     private function editButtonEventJs()
     {
         $moduleName = strtolower($this->getModuleName());
@@ -717,6 +864,10 @@ class MelisLumenModuleService
         return $script;
 
     }
+
+    /**
+     * @return string
+     */
     private function saveButtonEventJs()
     {
         $modulename = strtolower($this->getModuleName());
@@ -754,6 +905,10 @@ class MelisLumenModuleService
 
         return $script;
     }
+
+    /**
+     * @return null|string
+     */
     private function tabSaveCallbackJs()
     {
         $script = null;
@@ -770,6 +925,10 @@ class MelisLumenModuleService
 
         return $script;
     }
+
+    /**
+     * @param $text
+     */
     private static function p($text)
     {
         echo "<pre>";
@@ -862,6 +1021,10 @@ class MelisLumenModuleService
 
         return $translations;
     }
+
+    /**
+     * @return array
+     */
     public function getMelisLanguages()
     {
         $data = DB::connection('melis')->table('melis_core_lang')->select('lang_locale')->get()->all();
@@ -872,6 +1035,13 @@ class MelisLumenModuleService
         return $tmp;
     }
 
+    /**
+     * @param $translations
+     * @param $locale
+     * @param $availableTranslations
+     * @param $searchKey
+     * @return null
+     */
     public function constructTranslations($translations, $locale, $availableTranslations, $searchKey)
     {
         $translation = null;
@@ -887,6 +1057,9 @@ class MelisLumenModuleService
         return $translation;
     }
 
+    /**
+     * @return string
+     */
     public function getTableColumns()
     {
         $columns = $this->getToolCreatorSession()['step4']['tcf-db-table-cols'];
@@ -907,6 +1080,9 @@ class MelisLumenModuleService
         return "[\n  " . $partialContent ." \t\t],";
     }
 
+    /**
+     * @return string
+     */
     public function getSearchableColumns()
     {
         $columns = $this->getToolCreatorSession()['step4']['tcf-db-table-cols'];
@@ -923,6 +1099,11 @@ class MelisLumenModuleService
 
         return  "[" . $partialContent . "],";
     }
+
+    /**
+     * @param bool $languageForm
+     * @return string
+     */
     public function getFormFields($languageForm = false)
     {
         $string = "";
@@ -1003,6 +1184,10 @@ class MelisLumenModuleService
 
         return $string;
     }
+
+    /**
+     * @return array
+     */
     private function getTableFields()
     {
         $formFields = [];
@@ -1044,6 +1229,10 @@ class MelisLumenModuleService
         
         return $formFields;
     }
+
+    /**
+     * @return null|string
+     */
     public function constructLanguageForm()
     {
         $form = null;
@@ -1067,6 +1256,10 @@ class MelisLumenModuleService
 
         return $form;
     }
+
+    /**
+     * @return array
+     */
     private function getLanguageTableFields()
     {
         $formFields = [];
@@ -1109,11 +1302,18 @@ class MelisLumenModuleService
 
         return $formFields;
     }
+
+    /**
+     * @return mixed
+     */
     public function getTableName()
     {
        return $this->getToolCreatorSession()['step3']['tcf-db-table'];
     }
 
+    /**
+     * @return array
+     */
     public function getMelisCommonTranslations()
     {
         $moduleName = strtolower($this->getModuleName());
@@ -1158,16 +1358,29 @@ class MelisLumenModuleService
 
     }
 
+    /**
+     * @param $postData
+     * @param array $fields
+     * @param array $messages
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
     public function makeValidator($postData , $fields = [],$messages =  [])
     {
         // make a validator for the request parameters
         return Validator::make($postData,$fields ,$messages);
     }
-    
+
+    /**
+     * @return bool
+     */
     public function toolIsTab()
     {
          return ($this->getToolCreatorSession()['step1']['tcf-tool-edit-type'] == 'tab') ? true : false ;
     }
+
+    /**
+     * @return bool
+     */
     public function toolIsDb()
     {
         return ($this->getToolCreatorSession()['step1']['tct-tool-type'] == 'db') ? true : false ;
