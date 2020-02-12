@@ -192,7 +192,7 @@ class MelisLumenModuleService
      */
     public function setModuleName($moduleName)
     {
-        $this->moduleName = $moduleName;
+        $this->moduleName = ucwords(strtolower($moduleName));
     }
 
     /**

@@ -44,7 +44,7 @@ if ($id) {
 <div class="tab-content innerAll spacing-x2 {{ $smModuleName }}-form-container-{{ $itemId }}">
     <div class="tab-pane active" id="{{ $smModuleName }}-tool-tab-{{ $itemId }}">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-12" id="property_form">
                 <div id="<?= $smModuleName . $itemId?>">
                     <?= $form ?>
                 </div>
@@ -54,7 +54,7 @@ if ($id) {
     @if ($toolHasLanguageTable)
         <div class="tab-pane" id="{{ $smModuleName }}-tool-lang-tab-{{ $itemId }}">
             <div class="row">
-                <div class="col-xs-12 col-md-3">
+                <div class="col-xs-12 col-md-3" id="language_form">
                     <ul class="nav-tabs product-text-tab">
                         @foreach($langs As $key => $lang)
                             <li class="{{ ($key) ? '':'active' }}" style="margin-bottom: 6px;">
