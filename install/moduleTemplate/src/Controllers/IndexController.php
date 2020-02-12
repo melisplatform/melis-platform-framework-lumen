@@ -131,20 +131,19 @@ class IndexController extends BaseController
         unset($requestParams['trans']);
         $propertiesParams = $requestParams;
         // temp value for files
-        if (empty($propertiesParams['[primary_key]'])) {
-            if (!empty(app('request')->file())) {
-                // set temporary value
-                foreach (app('request')->file() as $field => $file) {
-                    $propertiesParams[$field] = "temp-value";
-                }
-            }
-        } else {
+        if (!empty($propertiesParams['[primary_key]'])) {
             // get data from db
             $tmpData = $this->toolService->getDataById($propertiesParams['[primary_key]'])->getOriginal();
             // merge with updated date
             $updatedData = array_merge($tmpData,$propertiesParams);
             // set for update
             $propertiesParams = $updatedData;
+        }
+        if (!empty(app('request')->file())) {
+            // set temporary value
+            foreach (app('request')->file() as $field => $file) {
+                $propertiesParams[$field] = "temp-value";
+            }
         }
         // construct validator
         $validator = $this->toolService->constructValidator($propertiesParams,Config::get('[module_name]')['form_config']);
