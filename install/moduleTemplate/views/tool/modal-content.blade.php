@@ -66,8 +66,8 @@ $toolHasLanguageTable = [tool_has_lang_table] ?? 0;
             </div>
         @endif
         <div align="right">
-            <button data-dismiss="modal" class="btn btn-danger pull-left lumen-modal-close" ><i class="fa fa-times"></i> <?= __('lumenDemo::translations.tr_common_close')?></button>
-            <button type="submit" class="btn btn-success" id="save-<?= $smModuleName ?>"><i class="fa fa-save"></i>  <?= __('lumenDemo::translations.tr_common_save')?></button>
+            <button data-dismiss="modal" class="btn btn-danger pull-left lumen-modal-close" ><i class="fa fa-times"></i> <?= __('[module_name]::messages.tr_' . $smModuleName . '_common_close')?></button>
+            <button type="submit" class="btn btn-success" id="save-<?= $smModuleName ?>"><i class="fa fa-save"></i>  <?= __('[module_name]::messages.tr_' . $smModuleName . '_common_save')?></button>
         </div>
     </div>
 </div>

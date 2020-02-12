@@ -1146,14 +1146,10 @@ class MelisLumenModuleService
                         'class' => 'd-flex flex-row justify-content-between'
                     ],
                     'tooltip' => " . ($options['tooltip'] ?? null) . ",
-                    'switchOptions' => [
-                        'label' => 'STATUS',
-                        'label-on' => 'YES',
-                        'label-off' => 'NO',
+                    'switch_options' => [
+                        'label-on' => 'Active',
+                        'label-off' => 'Inactive',
                         'icon' => \"glyphicon glyphicon-resize-horizontal\",
-                    ],
-                    'value_options' => [
-                        'on' => 'on',
                     ],
                 ],
                 'attributes' => [
@@ -1332,6 +1328,10 @@ class MelisLumenModuleService
             'tr_' . $moduleName . '_update_item_success' => 'Item saved successfully',
             'tr_' . $moduleName . '_add_item_failed' => 'Unable to save',
             'tr_' . $moduleName . '_update_failed' => 'Unable to update',
+            'tr_' . $moduleName . '_empty' => 'This value should not be blank.',
+            'tr_' . $moduleName . '_not_int' => 'Numerical value only',
+            'tr_' . $moduleName . '_empty_name_regex' => 'No special character(s) allowed',
+            'tr_' . $moduleName . '_songs_not_int' => 'Numerical value only',
         ];
         $commonTranslations['fr_FR'] = [
             'tr_' . $moduleName . '_common_add' => 'Ajouter',
@@ -1347,6 +1347,9 @@ class MelisLumenModuleService
             'tr_' . $moduleName . '_update_item_success' => 'Elément enregistré avec succès',
             'tr_' . $moduleName . '_add_item_failed' => 'Impossible d\'enregistrer',
             'tr_' . $moduleName . '_update_failed' => 'Impossible de mettre',
+            'tr_' . $moduleName . '_empty' => 'Cette valeur ne doit pas être vide',
+            'tr_' . $moduleName . '_empty_name_regex' => 'No special character(s) allowed',
+            'tr_' . $moduleName . '_not_int' => 'Valeur numérique uniquement',
         ];
         // for other languages that are not yet created
         foreach ($this->getMelisLanguages() as $idx => $val) {

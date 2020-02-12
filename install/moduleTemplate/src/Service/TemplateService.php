@@ -164,13 +164,13 @@ class [template_service_name]
             
             // for integer
             if ($tableFieldDataTypes[$name] == Types::INTEGER) {
-                $translations[$name. "." . Types::INTEGER] = __("lumenDemo::translations.tr_melis_lumen_notification_not_int");
+                $translations[$name. "." . Types::INTEGER] = __("[module_name]::messages.tr_" . strtolower('[module_name]') . "_not_int");
             }
             if (isset($elem['attributes']['required']) && $elem['attributes']['required']) {
                 if (isset($tableFields[$name])) {
                     $tableFields[$name] = $tableFields[$name] . "|required";
                 }
-                $translations[$name. ".required"] = __("lumenDemo::translations.tr_melis_lumen_notification_empty");
+                $translations[$name. ".required"] = __("[module_name]::messages.tr_" . strtolower('[module_name]') . "_empty");
             }
         }
 
