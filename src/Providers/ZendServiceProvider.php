@@ -45,9 +45,6 @@ class ZendServiceProvider extends ServiceProvider
             return $this->zendServiceManager->get('translator');
         });
 
-        $this->app->singleton('MelisToolCreatorSession' , function(){
-            return new Container('melistoolcreator');
-        });
 
     }
 
@@ -56,10 +53,8 @@ class ZendServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__ . "/../../routes/web.php");
         // run zendMvc
         $melisServices = new MelisServiceProvider();
-
         // set service manager
         $this->zendServiceManager = $melisServices->getZendSerivceManager();
         // set event manager
