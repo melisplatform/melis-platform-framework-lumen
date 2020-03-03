@@ -64,7 +64,6 @@ class ZendServiceProvider extends ServiceProvider
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
         // add melis helpers
-        $this->syncZendMelisViewHelpers();
         // set application locale
         $this->setLocale();
 
@@ -91,6 +90,7 @@ class ZendServiceProvider extends ServiceProvider
         $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
         $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+
         // selective view helper classes in order not to complicate with lumen pre-defined  classes
         $allowedHelpers = [
             'meliscoreicon',
@@ -106,7 +106,7 @@ class ZendServiceProvider extends ServiceProvider
             "melispagelanglink",
             "sitetranslate",
             "siteconfig",
-            "melisdatatable"
+            "melisdatatable",
         ];
         // register view helpers
         foreach ($zendMelisViewHelpers as $idx => $val) {
