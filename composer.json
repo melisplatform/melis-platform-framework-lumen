@@ -47,6 +47,7 @@
     },
     "require" : {
         "melisplatform/melis-platform-frameworks": "^3.2",
-        "laravel/lumen-framework": "5.8.*"
+        "laravel/lumen-framework": "5.8.*",
+        "doctrine/dbal": "2.*"
     }
 }

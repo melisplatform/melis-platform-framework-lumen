@@ -5,8 +5,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use Laravel\Lumen\Routing\Router;
+use MelisAssetManager\Service\MelisConfigService;
 use MelisCore\Service\MelisCoreFlashMessengerService;
 use MelisPlatformFrameworkLumenDemoToolLogic\Model\MelisDemoAlbumTableLumen;
+use Zend\Form\Element;
 
 class MelisPlatformToolService
 {
@@ -95,11 +97,10 @@ class MelisPlatformToolService
                             // create form element
                             $formElements .= $this->createElement($elements, $data);
                         } else {
-                            if (! empty($data)) {
+                            if (! empty($data) && !empty($elements['hideNoData'])) {
                                 $formElements .= $this->createElement($elements,$data);
                             }
                         }
-
                     }
                 }
                 // construct form
@@ -137,64 +138,51 @@ class MelisPlatformToolService
      */
     protected function createElement($elements, $data = [])
     {
-        // input types
-        $formInputsType = [
-            'text',
-            'radio',
-            'password',
-            'hidden',
-            'checkbox',
-            'file',
-        ];
-        // declrations
-        $elementAttrb = "";
-        $toolTip = "";
-        $label = "";
-        $element = "";
-        // check element type
-        if ($this->checkArraykey('type',$elements) ) {
-            // cehck for element attributes
-            if ($this->checkArraykey('attributes',$elements)) {
-                foreach ($elements['attributes'] as $idx => $val) {
-                    $elementAttrb .= $idx . "='" . $val . "' ";
-                }
-            }
-            // tooltip
-            if ($this->checkArraykey('tooltip',$elements)) {
-                $toolTip = '<i class="fa fa-info-circle fa-lg float-right tip-info" data-toggle="tooltip" data-placement ="left" data-original-title="' . $elements['tooltip'] . '"></i>';
-            }
-            // check required attribute
-            $required = null;
-            if (isset($elements['attributes']['required']) && $elements['attributes']['required']) {
-                $required = "*";
-            }
-            //label
-            if ($this->checkArraykey('label',$elements)) {
-                $label = "<label class='d-flex flex-row justify-content-between'>" . ($elements['label'] ?? null) . " " . $required  . " " . $toolTip ."</label>";
-            }
-            // for inputs
-            $value = isset($data[$elements['attributes']['name']]) ? "value='". $data[$elements['attributes']['name']] ."'" : null;
-            if ($this->checkArraykey('type',$elements)) {
-                if (in_array($elements['type'] ?? null, $formInputsType)) {
-                    // construct form inputs
-                    $element = "<input type='" .  $elements['type'] . "' " . $elementAttrb . "" .  $value .  " />";
-                } else if ($elements['type'] == 'textarea') {
-                    // construct textarea
-                    $element = "<textarea  style='resize: vertical;' " . $elementAttrb . "> " . $value . " </textarea>";
-                } else if ($elements['type'] == 'select') {
-                    if ($this->checkArraykey('options',$elements)) {
-                        $options = "";
-                        foreach($elements['options'] as $idx => $val){
-                            $options.= "<option value='" . $idx ."'>" . $val . "</option>";
-                        }
-                    }
-                    $element = "<select " . $elementAttrb .">" . $options ."</select>";
-                }
-            }
-
+        if ($this->checkArraykey('type',$elements)) {
+            $element = $this->renderMelisElement($elements, $data);
         }
         // set form elements
-        return "<div class='form-group'>" . $label . " " . $element ."</div>";
+       return $element;
+    }
+
+    public function getMelisElementTypes()
+    {
+        /** @var MelisConfigService $configSvc */
+        $configSvc = app('ZendServiceManager')->get('MelisConfig');
+        $toolCreatorTypesSelect = $configSvc->getItem('/melistoolcreator/forms/melistoolcreator_step5_form/elements');
+        $melisElementTypes = [];
+        // check for db table column types field
+        foreach ($toolCreatorTypesSelect as $idx => $element) {
+            if ($element['spec']['name'] == "tcf-db-table-col-type") {
+                $melisElementTypes = array_keys($element['spec']['options']['value_options']);
+            }
+        }
+
+        return $melisElementTypes;
+    }
+    public function renderMelisElement($elementConfig, $data = [])
+    {
+        /** @var Element $element */
+        $element = app('ZendServiceManager')->get("FormElementManager")->get($elementConfig['type']);
+        // set options
+        if ($this->checkArraykey('options',$elementConfig)) {
+            $element->setOptions($elementConfig['options']);
+        }
+        // set attributes
+        if ($this->checkArraykey('attributes',$elementConfig)) {
+            $element->setAttributes($elementConfig['attributes']);
+        }
+        // set name
+        if ($this->checkArraykey('name',$elementConfig)) {
+            $element->setName($elementConfig['name']);
+        }
+        if (! empty($data)) {
+           if (! empty($data[$elementConfig['name']])) {
+               $element->setValue($data[$elementConfig['name']]);
+           }
+        }
+        // render element
+        return app('ZendServiceManager')->get('ViewHelperManager')->get('MelisFieldRow')($element);
     }
 
 }
