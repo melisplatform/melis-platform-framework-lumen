@@ -8,7 +8,7 @@ use Laravel\Lumen\Routing\Router;
 use MelisAssetManager\Service\MelisConfigService;
 use MelisCore\Service\MelisCoreFlashMessengerService;
 use MelisPlatformFrameworkLumenDemoToolLogic\Model\MelisDemoAlbumTableLumen;
-use Zend\Form\Element;
+use Laminas\Form\Element;
 
 class MelisPlatformToolService
 {
@@ -23,7 +23,7 @@ class MelisPlatformToolService
     public function addToFlashMessenger($title,$message,$icon = MelisCoreFlashMessengerService::INFO)
     {
         /** @var MelisCoreFlashMessengerService $flashMessenger */
-        $flashMessenger = app('ZendServiceManager')->get('MelisCoreFlashMessenger');
+        $flashMessenger = app('LaminasServiceManager')->get('MelisCoreFlashMessenger');
         $flashMessenger->addToFlashMessenger($title, $message, $icon);
     }
 
@@ -38,7 +38,7 @@ class MelisPlatformToolService
      */
     public function saveLogs($title,$message,$success,$typeCode,$itemId)
     {
-        $logSrv = app('ZendServiceManager')->get('MelisCoreLogService');
+        $logSrv = app('LaminasServiceManager')->get('MelisCoreLogService');
         $logSrv->saveLog($title, $message, $success, $typeCode, $itemId);
     }
     /**
@@ -148,7 +148,7 @@ class MelisPlatformToolService
     public function getMelisElementTypes()
     {
         /** @var MelisConfigService $configSvc */
-        $configSvc = app('ZendServiceManager')->get('MelisConfig');
+        $configSvc = app('LaminasServiceManager')->get('MelisConfig');
         $toolCreatorTypesSelect = $configSvc->getItem('/melistoolcreator/forms/melistoolcreator_step5_form/elements');
         $melisElementTypes = [];
         // check for db table column types field
@@ -163,7 +163,7 @@ class MelisPlatformToolService
     public function renderMelisElement($elementConfig, $data = [])
     {
         /** @var Element $element */
-        $element = app('ZendServiceManager')->get("FormElementManager")->get($elementConfig['type']);
+        $element = app('LaminasServiceManager')->get("FormElementManager")->get($elementConfig['type']);
         // set options
         if ($this->checkArraykey('options',$elementConfig)) {
             $element->setOptions($elementConfig['options']);
@@ -182,7 +182,7 @@ class MelisPlatformToolService
            }
         }
         // render element
-        return app('ZendServiceManager')->get('ViewHelperManager')->get('MelisFieldRow')($element);
+        return app('LaminasServiceManager')->get('ViewHelperManager')->get('MelisFieldRow')($element);
     }
 
 }
