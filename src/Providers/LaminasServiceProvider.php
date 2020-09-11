@@ -19,15 +19,18 @@ class LaminasServiceProvider extends ServiceProvider
      * @var
      */
     protected $laminasServiceManager;
+
     /**
      * laminas event manager
      * @var
      */
     protected $laminasEventManager;
+
     /**
      * @var HelperPluginManager
      */
     protected $viewHelperManager;
+
     /**
      * register laminas services
      */
@@ -52,7 +55,13 @@ class LaminasServiceProvider extends ServiceProvider
      * set laminas services and sync melis database connection config
      */
     public function boot()
-    {
+    { 
+        /**
+         * no running of laminas when in CLI mode
+         */
+        if (!$this->app->has('LaminasServiceManager')) 
+            return;
+
         // run laminasMvc
         $melisServices = new MelisServiceProvider();
         // set service manager
@@ -63,9 +72,9 @@ class LaminasServiceProvider extends ServiceProvider
         $this->viewHelperManager  = $this->laminasServiceManager->get('ViewHelperManager');
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
-        // add melis helpers
         // set application locale
         $this->setLocale();
+
 
     }
 
@@ -83,6 +92,7 @@ class LaminasServiceProvider extends ServiceProvider
         // update lumen db config
         Config::set('database.connections',$lumenDbConfig);
     }
+
     public function syncLaminasMelisViewHelpers()
     {
         // get all registered view helper
