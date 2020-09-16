@@ -10,7 +10,7 @@ if (!is_dir($thirdPartyFolder)) {
     // download lumen skeleton from marketplace
     $message = MelisPlatformFrameworks\Support\MelisPlatformFrameworks::downloadFrameworkSkeleton('lumen');
     // make sure storage dir is writable
-    chmod(getcwd() . '/thirdparty/Lumen/storage/', 0777);
+    exec("chmod -R 0777 " . getcwd() . '/thirdparty/Lumen/storage/');
 
     return $message;
 
