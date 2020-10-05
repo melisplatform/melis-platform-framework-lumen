@@ -11,6 +11,10 @@ if (!is_dir($thirdPartyFolder)) {
     $message = MelisPlatformFrameworks\Support\MelisPlatformFrameworks::downloadFrameworkSkeleton('lumen');
     // make sure storage dir is writable
     exec("chmod -R 0777 " . getcwd() . '/thirdparty/Lumen/storage/');
+    // make sure module directory also is writable
+    exec("chmod -R 0777 " . getcwd() . '/thirdparty/Lumen/module/');
+    // make sure bootstrap directory also is writable
+    exec("chmod -R 0777 " . getcwd() . '/thirdparty/Lumen/bootstrap/');
 
     return $message;
 
