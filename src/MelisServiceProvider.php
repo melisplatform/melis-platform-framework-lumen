@@ -2,10 +2,10 @@
 namespace MelisPlatformFrameworkLumen;
 
 use Symfony\Component\HttpFoundation\Request;
-use Zend\EventManager\EventManager;
-use Zend\Mvc\Application;
-use Zend\ServiceManager\ServiceManager;
-use Zend\Session\Container;
+use Laminas\EventManager\EventManager;
+use Laminas\Mvc\Application;
+use Laminas\ServiceManager\ServiceManager;
+use Laminas\Session\Container;
 
 class MelisServiceProvider
 {
@@ -14,20 +14,20 @@ class MelisServiceProvider
      */
     private $config = [];
     /**
-     * zend service manager
+     * laminas service manager
      * @var ServiceManager
      */
-    protected $zendServiceManager;
+    protected $laminasServiceManager;
     /**
-     * zend event manager
+     * laminas event manager
      * @var
      */
-    protected $zendEventManager;
+    protected $laminasEventManager;
 
     public function __construct()
     {
-        // run zend mvc
-        $this->zendMvc();
+        // run laminas mvc
+        $this->laminasMvc();
     }
 
     /**
@@ -37,15 +37,15 @@ class MelisServiceProvider
      */
     public static function getService($serviceName)
     {
-        $zendAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
+        $laminasAppConfig = $_SERVER['DOCUMENT_ROOT'] . "/../config/application.config.php";
 
-        if (!file_exists($zendAppConfig)) {
-            throw new \Exception("Zend application config missing");
+        if (!file_exists($laminasAppConfig)) {
+            throw new \Exception("Laminas application config missing");
         }
-        // get the zend application
-        $zendApplication = Application::init(require $zendAppConfig);
+        // get the laminas application
+        $laminasApplication = Application::init(require $laminasAppConfig);
 
-        return $zendApplication->getServiceManager()->get($serviceName);
+        return $laminasApplication->getServiceManager()->get($serviceName);
     }
     /**
      * @return mixed
@@ -61,21 +61,21 @@ class MelisServiceProvider
     /**
      * @throws \Exception
      */
-    protected function zendMvc()
+    protected function laminasMvc()
     {
-        $zendAppConfig = __DIR__ . "/../../../../config/application.config.php";
-        if (!file_exists($zendAppConfig)) {
-            throw new \Exception("Zend application config missing");
+        $laminasAppConfig = __DIR__ . "/../../../../config/application.config.php";
+        if (!file_exists($laminasAppConfig)) {
+            throw new \Exception("Laminas application config missing");
         }
-        $zendConfig = require $zendAppConfig;;
-        $zendConfig['modules'] = array_merge($zendConfig['modules'],$this->getMelisBoModuleLoad());
+        $laminasConfig = require $laminasAppConfig;;
+        $laminasConfig['modules'] = array_merge($laminasConfig['modules'],$this->getMelisBoModuleLoad());
 
-        // get the zend application
-        $zendApplication = Application::init($zendConfig);
-        // set zend service manager
-        $this->setZendServiceManager($zendApplication->getServiceManager());
-        // set zend event manager
-        $this->setZendEventManager($zendApplication->getEventManager());
+        // get the laminas application
+        $laminasApplication = Application::init($laminasConfig);
+        // set laminas service manager
+        $this->setLaminasServiceManager($laminasApplication->getServiceManager());
+        // set laminas event manager
+        $this->setLaminasEventManager($laminasApplication->getEventManager());
 
     }
 
@@ -99,12 +99,12 @@ class MelisServiceProvider
      */
     protected function getMelisDbConfig()
     {
-        $zendConfig = $this->getZendSerivceManager()->get('config');
-        if (! isset($zendConfig['db']) && empty($zendConfig['db'])) {
+        $laminasConfig = $this->getLaminasSerivceManager()->get('config');
+        if (! isset($laminasConfig['db']) && empty($laminasConfig['db'])) {
             throw new \Exception("No melis database was set");
         }
 
-        return $zendConfig['db'];
+        return $laminasConfig['db'];
     }
 
     /**
@@ -112,68 +112,53 @@ class MelisServiceProvider
      */
     public function constructDbConfig()
     {
-        // melis db config
+        // get melis db config
         $dbConfig = $this->getMelisDbConfig();
-        // get db dsn
-        $dbConnection = explode(';', $dbConfig['dsn']);
-        // get database driver
-        $driver = explode(':', $dbConnection[0])[0];
-        // get host
-        $host = explode('=', $dbConnection[1])[1];
-        // get database name
-        $database = explode('=', $dbConnection[0])[1];
-        // db charset
-        $charset = explode('=',$dbConnection[2])[1];
-        // get database username
-        $username = $dbConfig['username'];
-        // get database password
-        $password = $dbConfig['password'];
-        // append melis database connection into lumen db config
-        $melisDbConfig['melis'] = [
-            'driver' => $driver,
-            'port'   => '3306',
-            'charset' => $charset,
-            'collation' => 'utf8_general_ci',
-            'host' => $host,
-            'database' => $database,
-            'username' => $username,
-            'password' => $password,
+
+        return [
+            'melis' => [
+                'driver' => strtolower($dbConfig['driver']) == 'mysqli' ? 'mysql' : $dbConfig['driver'],
+                'port'   => $dbConfig['port'],
+                'charset' => $dbConfig['charset'],
+                'collation' => 'utf8_general_ci',
+                'host' => $dbConfig['hostname'],
+                'database' => $dbConfig['database'],
+                'username' => $dbConfig['username'],
+                'password' => $dbConfig['password']
+            ]
         ];
-
-
-        return $melisDbConfig;
     }
 
     /**
      * @param ServiceManager $serviceManager
      */
-    public function setZendServiceManager(ServiceManager $serviceManager)
+    public function setLaminasServiceManager(ServiceManager $serviceManager)
     {
-        $this->zendServiceManager = $serviceManager;
+        $this->laminasServiceManager = $serviceManager;
     }
 
     /**
      * @return mixed
      */
-    public function getZendSerivceManager()
+    public function getLaminasSerivceManager()
     {
-        return $this->zendServiceManager;
+        return $this->laminasServiceManager;
     }
 
     /**
      * @param EventManager $eventManager
      */
-    public function setZendEventManager(EventManager $eventManager)
+    public function setLaminasEventManager(EventManager $eventManager)
     {
-        $this->zendEventManager = $eventManager;
+        $this->laminasEventManager = $eventManager;
     }
 
     /**
      * @return mixed
      */
-    public function getZendEventManager()
+    public function getLaminasEventManager()
     {
-        return $this->zendEventManager;
+        return $this->laminasEventManager;
     }
 
     /**
@@ -195,14 +180,20 @@ class MelisServiceProvider
     {
         return $this->getLumenApp()->dispatch($request)->getContent();
     }
+
+    /**
+     * add config
+     */
     public function addConfig(array $config)
     {
         $this->config = array_merge($this->config,$config);
     }
+
+    /**
+     * get config
+     */
     public function getConfig()
     {
         return $this->config;
     }
-    
-
 }

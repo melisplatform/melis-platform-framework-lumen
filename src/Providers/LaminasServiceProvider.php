@@ -6,66 +6,75 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use MelisPlatformFrameworkLumen\MelisServiceProvider;
 use MelisPlatformFrameworkLumen\Service\MelisPlatformToolLumenService;
-use Zend\EventManager\EventManager;
-use Zend\Mvc\Application;
-use Zend\ServiceManager\ServiceManager;
-use Zend\Session\Container;
-use Zend\View\HelperPluginManager;
+use Laminas\EventManager\EventManager;
+use Laminas\Mvc\Application;
+use Laminas\ServiceManager\ServiceManager;
+use Laminas\Session\Container;
+use Laminas\View\HelperPluginManager;
 
-class ZendServiceProvider extends ServiceProvider
+class LaminasServiceProvider extends ServiceProvider
 {
     /**
-     * zend service manager
+     * laminas service manager
      * @var
      */
-    protected $zendServiceManager;
+    protected $laminasServiceManager;
+
     /**
-     * zend event manager
+     * laminas event manager
      * @var
      */
-    protected $zendEventManager;
+    protected $laminasEventManager;
+
     /**
      * @var HelperPluginManager
      */
     protected $viewHelperManager;
+
     /**
-     * register zend services
+     * register laminas services
      */
     public function register()
     {
-        // register zend service manager
-        $this->app->singleton('ZendServiceManager' , function(){
-            return $this->zendServiceManager;
+        // register laminas service manager
+        $this->app->singleton('LaminasServiceManager' , function(){
+            return $this->laminasServiceManager;
         });
         // event manager
-        $this->app->singleton('ZendEventManager' , function(){
-            return $this->zendEventManager;
+        $this->app->singleton('LaminasEventManager' , function(){
+            return $this->laminasEventManager;
         });
-        $this->app->singleton('ZendTranslator' , function(){
-            return $this->zendServiceManager->get('translator');
+        $this->app->singleton('LaminasTranslator' , function(){
+            return $this->laminasServiceManager->get('translator');
         });
 
 
     }
 
     /**
-     * set zend services and sync melis database connection config
+     * set laminas services and sync melis database connection config
      */
     public function boot()
-    {
-        // run zendMvc
+    { 
+        /**
+         * no running of laminas when in CLI mode
+         */
+        if (!$this->app->has('LaminasServiceManager')) 
+            return;
+
+        // run laminasMvc
         $melisServices = new MelisServiceProvider();
         // set service manager
-        $this->zendServiceManager = $melisServices->getZendSerivceManager();
+        $this->laminasServiceManager = $melisServices->getLaminasSerivceManager();
         // set event manager
-        $this->zendEventManager   = $melisServices->getZendEventManager();
+        $this->laminasEventManager   = $melisServices->getLaminasEventManager();
         // set helper manager
-        $this->viewHelperManager  = $this->zendServiceManager->get('viewhelpermanager');
+        $this->viewHelperManager  = $this->laminasServiceManager->get('ViewHelperManager');
         // sync melis database connection into lumen database config
         $this->syncMelisDbConnection($melisServices->constructDbConfig());
-        // add melis helpers
         // set application locale
         $this->setLocale();
+
 
     }
 
@@ -83,13 +92,14 @@ class ZendServiceProvider extends ServiceProvider
         // update lumen db config
         Config::set('database.connections',$lumenDbConfig);
     }
-    public function syncZendMelisViewHelpers()
+
+    public function syncLaminasMelisViewHelpers()
     {
         // get all registered view helper
         $registerdViewHelpers = $this->viewHelperManager->getRegisteredServices();
-        $zendMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
-        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['aliases']);
-        $zendMelisViewHelpers = array_merge($zendMelisViewHelpers,$registerdViewHelpers['factories']);
+        $laminasMelisViewHelpers = $registerdViewHelpers['invokableClasses'];
+        $laminasMelisViewHelpers = array_merge($laminasMelisViewHelpers,$registerdViewHelpers['aliases']);
+        $laminasMelisViewHelpers = array_merge($laminasMelisViewHelpers,$registerdViewHelpers['factories']);
 
         // selective view helper classes in order not to complicate with lumen pre-defined  classes
         $allowedHelpers = [
@@ -109,7 +119,7 @@ class ZendServiceProvider extends ServiceProvider
             "melisdatatable",
         ];
         // register view helpers
-        foreach ($zendMelisViewHelpers as $idx => $val) {
+        foreach ($laminasMelisViewHelpers as $idx => $val) {
             if(in_array($val,$allowedHelpers)) {
                 $this->app->singleton($val,function() use ($val) {
                     return $this->viewHelperManager->get($val);
