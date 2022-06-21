@@ -46,7 +46,7 @@
         "mockery/mockery": "^1.4.4"
     },
     "require": {
-        "melisplatform/melis-platform-frameworks": "*",
+        "melisplatform/melis-platform-frameworks": "^5.0",
         "laravel/lumen-framework": "^8.3",
         "doctrine/dbal": "^3.3"
     }
