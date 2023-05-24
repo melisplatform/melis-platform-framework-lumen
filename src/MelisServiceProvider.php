@@ -120,7 +120,7 @@ class MelisServiceProvider
                 'driver' => strtolower($dbConfig['driver']) == 'mysqli' ? 'mysql' : $dbConfig['driver'],
                 'port'   => $dbConfig['port'],
                 'charset' => $dbConfig['charset'],
-                'collation' => 'utf8_general_ci',
+                'collation' => 'utf8mb4_general_ci',
                 'host' => $dbConfig['hostname'],
                 'database' => $dbConfig['database'],
                 'username' => $dbConfig['username'],
